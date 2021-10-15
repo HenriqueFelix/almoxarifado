@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `usuario` (
 -- Copiando dados para a tabela projeto_audax.usuario: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
 INSERT INTO `usuario` (`codigo`, `nome`, `email`, `perfil`, `senha`, `cpf`, `telefone`, `ativo`, `data_hora_cadastro`) VALUES
-	(1, 'Luiz Henrique', 'admin', 1, '123456', NULL, NULL, 1, '2021-10-09 08:33:02');
+	(1, 'Henrique', 'admin', 1, '123456', NULL, NULL, 1, '2021-10-09 08:33:02');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
