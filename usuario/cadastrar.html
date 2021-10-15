@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <title>Almoxarifado</title>
+
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/global-funcoes.js"></script>
+    <script src="../assets/js/scripts.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#load-div").hide();
+
+            validarPerfil("usuario/cadastrar.html", "load-div", "menu-div");
+
+            carregarPerfis();
+        });
+
+        function carregarPerfis() {
+
+        }
+
+        function cadastrarUsuario() {
+            var nome = $("#nome").val().trim();
+            var funcao = $("#funcao").val().trim();
+            var email = $("#email").val().trim();
+            var senha = $("#senha").val().trim();
+
+            if (nome == "") {
+                alert("Informe o nome!");
+                $("#nome").focus();
+                return false;
+            } else if (funcao == "") {
+                alert("Informe a função!");
+                $("#funcao").focus();
+                return false;
+            } else if (email == "") {
+                alert("Informe o email!");
+                $("#funcao").focus();
+                return false;
+            } else if (senha == "") {
+                alert("Informe a senha!");
+                $("#funcao").focus();
+                return false;
+            }
+
+            var parametros = {
+                "metodo": "CadastroUsuario",
+                "nome": nome,
+                "funcao": funcao,
+                "email": email,
+                "senha": senha,
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "../src/api/usuario.php",
+                data: parametros,
+                beforeSend: function () {
+                    $("#div_load").show();
+                },
+                success: function (ret) {
+                    console.log(ret);
+
+                    try {
+                        if (parseInt(ret.valido) == 1) {
+                            alert(ret.mensagem);
+                            window.location.replace("consultar_usuario.php");
+                        } else {
+                            alert(ret.mensagem);
+                        }
+                    } catch (e) {
+                        alert("Ops! Não foi possível realizar a ação.");
+                        console.error(e);
+                    }
+                },
+                error: function (request, status, errorThrown) {
+                    alert("Erro!");
+                    //console.log(xhr.status);
+                    console.error(xhr.responseText);
+                    console.error(thrownError);
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="d-flex" id="wrapper">
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div id="menu-div" class="list-group list-group-flush"></div>
+        </div>
+
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <section class="section-conteudo">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 class="titulo-header">Cadastrar Usuários</h3>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-md-6">
+                                <label>Nome</label>
+                                <input class="form-control" placeholder="Informe o nome" id="nome">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Função</label>
+                                <select class="form-control select" placeholder="Informe o nome" id="funcao">
+                                    <option value="">Selecione</option>
+                                    <option value="1">Administrador</option>
+                                    <option value="2">Solicitante</option>
+                                    <option value="3">Aprovador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-md-6">
+                                <label>E-mail</label>
+                                <input class="form-control" placeholder="Informe o e-mail" id="email">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Senha</label>
+                                <input class="form-control" placeholder="Informe a senha" id="senha">
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-md-12" style="text-align:right;">
+                                <a class="btn" href="consultar_usuario.php">Cancelar</a>
+                                <button type="button" class="btn btn-primary" name="cadastrar"
+                                    onclick="cadastrarUsuario();">Cadastrar usuário</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="load-div"></div>
+</body>
+
+</html>

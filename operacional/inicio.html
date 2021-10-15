@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Almoxarifado</title>
+    
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../assets/css/styles.css"/>
+
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/global-funcoes.js"></script>
+    <script src="../assets/js/scripts.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#load-div").hide();
+
+            validarPerfil("operacional/inicio.html", "load-div", "menu-div");
+        });
+    </script>
+</head>
+
+<body>
+    <div class="d-flex" id="wrapper">
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div id="menu-div" class="list-group list-group-flush">
+                <!--
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="../usuario/cadastrar.html">Usuários</a>
+                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="../material/cadastrar.html">Materiais</a>
+                -->
+            </div>
+        </div>
+        
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <h3 class="mt-4">Projeto Audax PHP - Solicitação de Material</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="load-div"></div>
+</body>
+</html>

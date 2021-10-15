@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="utf-8">
+	<title>Almoxarifado</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/global-funcoes.js"></script>
+
+	<script type="text/javascript">
+		$(function () {
+            validarPerfil("operacional/inicio.html");
+        });
+	</script>
+</head>
+<body>
+    <?php include("../includes/menu.php");?>
+    <section class="section-conteudo">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="titulo-header">Usuários</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <input class="input-pesquisa" placeholder="Digite o que você quer encontrar" >
+                <span class="glyphicon glyphicon-search" name="filtrar" id="filtrar" onclick="filtrar();"></span>
+            </div>
+            <div class="col-md-6" style="text-align:right;">
+                <a class="btn btn-primary" href="cadastrar_usuario.php">Novo usuário</a>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-md-12">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Nome</td>
+                        <td>E-mail</td>
+                        <td>Função</td>
+                        <td>Ações</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>    
+</body>
+</html>

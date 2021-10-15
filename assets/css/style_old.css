@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+body{
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+.box{
+    margin-top: 50px;
+    margin-bottom: 264px;
+    margin-right: 290px;
+    margin-left: 150px;
+    position: absolute;
+}
+
+/* menu */
+.container-menu{
+    width: 250px;
+    height: 100%;
+    position: absolute;
+}
+
+.container-menu ul{
+    list-style: none;
+    margin-top: 100px;
+    padding-left: 40px;
+    color: #0C4284;
+}
+
+.container-menu ul li{
+    margin-bottom: 10px;
+    
+}
+
+.div-btn-sair{
+    padding-left: 40px;
+    position: fixed;
+    bottom: 20px;
+}
+
+/* menu */
+
+/* section conteudo */
+.section-conteudo{
+    margin-left: 250px;
+    padding-right: 50px;
+}
+
+.titulo-header{
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 35px;
+    line-height: 68px;
+    color: #7A7A7A;
+}
+/* section conteudo */
+.input-pesquisa{
+    width: 51%;
+}
+
+.nav-menu-2{
+    
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top:0;
+    left: 0;
+    z-index: 1;
+    overflow: hidden;
+    border-right: 1px solid rgb(190, 190, 190);
+    text-decoration: none;
+}
+
+nav a{
+    position: static;
+    width: 75px;
+    height: 25px;
+    left: 0px;
+    top: 0px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 25px;
+    display: block;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    margin: 50px 64px 12px; ;
+}
+.span-color {
+    color: #1473E6;
+}
+body {
+margin: 0px;
+
+background: #ffff;
+}
+.container-css{
+    background: #f3f3f3;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.cor-label-index{
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 30px;
+    line-height: 111.18%;
+    /* or 33px */
+
+
+    color: #1473E6;
+
+}
+
+

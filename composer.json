@@ -1,0 +1,15 @@
+{
+    "name": "vendor/almoxarifado",
+    "autoload": {
+        "psr-4": {
+            "Vendor\\Almoxarifado\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Luiz",
+            "email": "luiz.henrique.933@gmail.com"
+        }
+    ],
+    "require": {}
+}
