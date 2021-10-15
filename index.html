@@ -4,8 +4,10 @@
 <head>
     <meta charset="utf-8">
     <title>Almoxarifado</title>
+    
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/login.css">
 
     <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/jquery-3.6.0.js"></script>
@@ -13,17 +15,25 @@
 
     <script type="text/javascript">
         $(function () {
-            //validarPerfil("index.html");
+            //validarPerfil("index.html", "load-div", null);
         });
 
-        function logar() {
+        function acessarSistema() {
             var login = $("#email").val().trim();
-            var senha = $("#password").val();
+            var senha = $("#senha").val();
+
+            if (login == "") {
+                alert("Informe o e-mail!");
+                return false;
+            } else if (senha == "") {
+                alert("Informe a senha!");
+                return false;
+            }
 
             var parametros = {
-                "metodo": "Login", 
-                "login" : login,
-                "senha" : senha,
+                "metodo": "Login",
+                "login": login,
+                "senha": senha,
             };
 
             $.ajax({
@@ -32,7 +42,7 @@
                 ContentType: 'application/json',
                 data: parametros,
                 beforeSend: function () {
-                    $("#div_load").show();
+                    $("#load-div").show();
                 },
                 success: function (ret) {
                     console.log(ret);
@@ -41,17 +51,19 @@
                         if (parseInt(ret.valido) == 1) {
                             window.location.replace("operacional/inicio.html");
                         } else {
+                            $("#load-div").hide();
                             alert(ret.mensagem);
                         }
                     } catch (e) {
+                        $("#load-div").hide();
                         alert("Ops! Não foi possível realizar a ação.");
                         console.error(e);
                     }
-
-                    $("#div_load").hide();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                    $("#load-div").hide();
                     alert("Ops! Não foi possível completar a requisição.");
+
                     //console.log(xhr.status);
                     console.error(xhr.responseText);
                     console.error(thrownError);
@@ -62,33 +74,38 @@
 </head>
 
 <body>
-    <div class="box">
-            <div class="row">
-                <label class="col-sm-7 col-form-label cor-label-index">Solicite os materiais do seu almoxarifado de
-                    forma facilitada.</label>
-            </div>
-            <div class="row">
-                <label class="col-sm-2">Email</label>
-                <div class="col-md-4">
-                    <input type="text" class="form-control" id="email">
+    <div class="sidenav">
+        <div class="login-main-text">
+            <h1>Controle de<br>Almoxarifado</h1>
+            <h3>Solicite os materiais do seu almoxarifado de forma facilitada.</h3>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="col-md-12 col-sm-12">
+            <div class="login-form">
+                <div class="input-container">
+                    <input id="email" type="text" class="input" pattern=".+" required />
+                    <label class="label" for="email">E-mail</label>
                 </div>
-            </div>
-            <div class="row">
-                <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-                <div class="col-md-4">
-                    <span class=" glyphicon-lock"></span>
-                    <input type="password" class="form-control" id="password" name="password">
+
+                <div class="input-container top15">
+                    <input id="senha" type="password" class="input" pattern=".+" required />
+                    <label class="label" for="senha">Senha</label>
                 </div>
+
+                <button type="button" class="btn btn-primary btn-block custom-btn w100 top15" onclick="acessarSistema();">Entrar</button>
+                <!-- <button type="button" class="btn btn-secondary">Cadastre-se</button> -->
             </div>
-            <div class="row">
-                <div class="col-sm-6 col-form-label">
-                    <div class="form-group">
-                        <buttom type="buttom" class="btn btn-primary col-sm-12" onclick="logar();">Entrar
-                        </buttom>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
+
+    <div id="load-div" class="progress-area">
+        <div class="slider">
+            <div class="line"></div>
+            <div class="subline inc"></div>
+            <div class="subline dec"></div>
+        </div>
     </div>
 </body>
-
 </html>

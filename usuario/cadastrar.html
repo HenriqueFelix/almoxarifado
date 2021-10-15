@@ -6,17 +6,17 @@
     <title>Almoxarifado</title>
 
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/menu.css" />
+    <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
-    <script src="../assets/js/scripts.js"></script>
+    <script src="../assets/js/menu-script.js"></script>
 
     <script type="text/javascript">
         $(function () {
-            $("#load-div").hide();
-
             validarPerfil("usuario/cadastrar.html", "load-div", "menu-div");
 
             carregarPerfis();
@@ -30,7 +30,7 @@
             var nome = $("#nome").val().trim();
             var funcao = $("#funcao").val().trim();
             var email = $("#email").val().trim();
-            var senha = $("#senha").val().trim();
+            var senha = $("#senha").val();
 
             if (nome == "") {
                 alert("Informe o nome!");
@@ -41,7 +41,7 @@
                 $("#funcao").focus();
                 return false;
             } else if (email == "") {
-                alert("Informe o email!");
+                alert("Informe o e-mail!");
                 $("#funcao").focus();
                 return false;
             } else if (senha == "") {
@@ -63,7 +63,7 @@
                 url: "../src/api/usuario.php",
                 data: parametros,
                 beforeSend: function () {
-                    $("#div_load").show();
+                    $("#load-div").show();
                 },
                 success: function (ret) {
                     console.log(ret);
@@ -71,17 +71,21 @@
                     try {
                         if (parseInt(ret.valido) == 1) {
                             alert(ret.mensagem);
-                            window.location.replace("consultar_usuario.php");
+                            window.location.replace("consultar.html");
                         } else {
+                            $("#load-div").hide();
                             alert(ret.mensagem);
                         }
                     } catch (e) {
+                        $("#load-div").hide();
                         alert("Ops! Não foi possível realizar a ação.");
                         console.error(e);
                     }
                 },
                 error: function (request, status, errorThrown) {
-                    alert("Erro!");
+                    $("#load-div").hide();
+                    alert("Erro ao realizar cadastro!");
+
                     //console.log(xhr.status);
                     console.error(xhr.responseText);
                     console.error(thrownError);
@@ -91,60 +95,82 @@
     </script>
 </head>
 
-<body>
-    <div class="d-flex" id="wrapper">
-        <div class="border-end bg-white" id="sidebar-wrapper">
-            <div id="menu-div" class="list-group list-group-flush"></div>
+<body id="body-pd">
+    <header class="header" id="header">
+        <div class="header_toggle">
+            <i class='bx bx-menu' id="header-toggle"></i>
         </div>
+        <div class="header_img">
+            <img src="https://i.imgur.com/hczKIze.jpg" alt="">
+        </div>
+    </header>
 
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <section class="section-conteudo">
-                    <form>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3 class="titulo-header">Cadastrar Usuários</h3>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top: 20px;">
-                            <div class="col-md-6">
-                                <label>Nome</label>
-                                <input class="form-control" placeholder="Informe o nome" id="nome">
-                            </div>
-                            <div class="col-md-6">
-                                <label>Função</label>
-                                <select class="form-control select" placeholder="Informe o nome" id="funcao">
-                                    <option value="">Selecione</option>
-                                    <option value="1">Administrador</option>
-                                    <option value="2">Solicitante</option>
-                                    <option value="3">Aprovador</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top: 20px;">
-                            <div class="col-md-6">
-                                <label>E-mail</label>
-                                <input class="form-control" placeholder="Informe o e-mail" id="email">
-                            </div>
-                            <div class="col-md-6">
-                                <label>Senha</label>
-                                <input class="form-control" placeholder="Informe a senha" id="senha">
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top: 20px;">
-                            <div class="col-md-12" style="text-align:right;">
-                                <a class="btn" href="consultar_usuario.php">Cancelar</a>
-                                <button type="button" class="btn btn-primary" name="cadastrar"
-                                    onclick="cadastrarUsuario();">Cadastrar usuário</button>
-                            </div>
-                        </div>
-                    </form>
-                </section>
+    <div class="l-navbar" id="nav-bar">
+        <nav class="nav">
+            <div>
+                <a href="../operacional/inicio.html" class="nav_logo">
+                    <i class='bx bx-layerz nav_logo-icon'></i>
+                    <span class="nav_logo-name"></span>
+                </a>
+
+                <div id="menu-div" class="nav_list"></div>
+            </div>
+
+            <a onclick="logoutSistema()" class="nav_link">
+                <i class='bx bx-log-out nav_icon'></i>
+                <span class="nav_name">Sair</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="height-100 padding-top-25">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="titulo-header">Cadastrar Usuário</h4>
+                </div>
+            </div>
+            <div class="row top15">
+                <div class="col-md-6">
+                    <label>Nome</label>
+                    <input class="form-control" placeholder="Informe o nome" id="nome">
+                </div>
+                <div class="col-md-6">
+                    <label>Função</label>
+                    <select class="form-control select" placeholder="Informe o nome" id="funcao">
+                        <option value="">Selecione</option>
+                        <option value="1">Administrador</option>
+                        <option value="2">Solicitante</option>
+                        <option value="3">Aprovador</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-md-6">
+                    <label>E-mail</label>
+                    <input class="form-control" placeholder="Informe o e-mail" id="email">
+                </div>
+                <div class="col-md-6">
+                    <label>Senha</label>
+                    <input class="form-control" placeholder="Informe a senha" id="senha">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-md-12" style="text-align:right;">
+                    <a class="btn" href="consultar.html">Cancelar</a>
+                    <button type="button" class="btn btn-primary" onclick="cadastrarUsuario();">Cadastrar usuário</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="load-div"></div>
+    <div id="load-div" class="progress-area">
+        <div class="slider">
+            <div class="line"></div>
+            <div class="subline inc"></div>
+            <div class="subline dec"></div>
+        </div>
+    </div>
 </body>
 
 </html>

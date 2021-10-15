@@ -1,38 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-	<meta charset="utf-8">
-	<title>Almoxarifado</title>
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <title>Almoxarifado</title>
+
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/menu.css" />
+    <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/search-input.css" />
+
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
+    <script src="../assets/js/menu-script.js"></script>
 
-	<script type="text/javascript">
-		$(function () {
-            validarPerfil("operacional/inicio.html");
+    <script type="text/javascript">
+        $(function () {
+            validarPerfil("usuario/consultar.html", "load-div", "menu-div");
         });
-	</script>
+    </script>
 </head>
-<body>
-    <?php include("../includes/menu.php");?>
-    <section class="section-conteudo">
+
+<body id="body-pd">
+    <header class="header" id="header">
+        <div class="header_toggle">
+            <i class='bx bx-menu' id="header-toggle"></i>
+        </div>
+        <div class="header_img">
+            <img src="https://i.imgur.com/hczKIze.jpg" alt="">
+        </div>
+    </header>
+
+    <div class="l-navbar" id="nav-bar">
+        <nav class="nav">
+            <div>
+                <a href="../operacional/inicio.html" class="nav_logo">
+                    <i class='bx bx-layerz nav_logo-icon'></i>
+                    <span class="nav_logo-name"></span>
+                </a>
+
+                <div id="menu-div" class="nav_list"></div>
+            </div>
+
+            <a onclick="logoutSistema()" class="nav_link">
+                <i class='bx bx-log-out nav_icon'></i>
+                <span class="nav_name">Sair</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="height-100 padding-top-25">
         <div class="row">
             <div class="col-md-12">
                 <h3 class="titulo-header">Usuários</h3>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <input class="input-pesquisa" placeholder="Digite o que você quer encontrar" >
-                <span class="glyphicon glyphicon-search" name="filtrar" id="filtrar" onclick="filtrar();"></span>
+
+        <div class="row top15">
+            <div class="col-md-4 col-xs-6">
+                <div class="input-group input-group-search">
+                    <input type="text" class="form-control input-search" placeholder="Digite o que você quer encontrar.">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button">
+                            <i class="bx bx-search"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6" style="text-align:right;">
-                <a class="btn btn-primary" href="cadastrar_usuario.php">Novo usuário</a>
+
+            <div class="col-md-8 col-xs-6 all-right">
+                <a class="btn btn-primary custom-btn" href="cadastrar.html">Novo usuário</a>
             </div>
         </div>
+
         <div class="row" style="margin-top: 20px;">
             <div class="col-md-12">
                 <table class="table table-bordered">
@@ -45,6 +87,7 @@
                 </table>
             </div>
         </div>
-    </section>    
+    </div>
 </body>
+
 </html>

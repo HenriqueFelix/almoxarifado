@@ -1,44 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="utf-8">
     <title>Almoxarifado</title>
-    
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="../assets/css/styles.css"/>
+
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/menu.css" />
+    <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
-    <script src="../assets/js/scripts.js"></script>
+    <script src="../assets/js/menu-script.js"></script>
 
     <script type="text/javascript">
         $(function () {
-            $("#load-div").hide();
-
             validarPerfil("operacional/inicio.html", "load-div", "menu-div");
         });
     </script>
 </head>
 
-<body>
-    <div class="d-flex" id="wrapper">
-        <div class="border-end bg-white" id="sidebar-wrapper">
-            <div id="menu-div" class="list-group list-group-flush">
-                <!--
-                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="../usuario/cadastrar.html">Usuários</a>
-                <a class="list-group-item list-group-item-action list-group-item-light p-3" href="../material/cadastrar.html">Materiais</a>
-                -->
-            </div>
+<body id="body-pd">
+    <header class="header" id="header">
+        <div class="header_toggle">
+            <i class='bx bx-menu' id="header-toggle"></i>
         </div>
-        
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <h3 class="mt-4">Projeto Audax PHP - Solicitação de Material</h3>
-            </div>
+        <div class="header_img">
+            <img src="https://i.imgur.com/hczKIze.jpg" alt="">
         </div>
+    </header>
+
+    <div class="l-navbar" id="nav-bar">
+        <nav class="nav">
+            <div>
+                <a href="../operacional/inicio.html" class="nav_logo">
+                    <i class='bx bx-layerz nav_logo-icon'></i>
+                    <span class="nav_logo-name"></span>
+                </a>
+
+                <div id="menu-div" class="nav_list">
+                    <!--
+                    <a href="../operacional/inicio.html" class="nav_link active">
+                        <i class='bx bx-grid-alt nav_icon'></i>
+                        <span class="nav_name">Início</span>
+                    </a>
+                    -->
+                </div>
+            </div>
+
+            <a onclick="logoutSistema()" class="nav_link">
+                <i class='bx bx-log-out nav_icon'></i>
+                <span class="nav_name">Sair</span>
+            </a>
+        </nav>
     </div>
 
-    <div id="load-div"></div>
+    <div class="height-100 padding-top-25">
+        <h4>Solicitação de Material</h4>
+    </div>
+
+    <div id="load-div" class="progress-area">
+        <div class="slider">
+            <div class="line"></div>
+            <div class="subline inc"></div>
+            <div class="subline dec"></div>
+        </div>
+    </div>
 </body>
+
 </html>

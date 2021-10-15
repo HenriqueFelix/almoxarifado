@@ -24,7 +24,7 @@ function validarPerfil(tela, progressId, menuId) {
 
                     window.location.replace("http://localhost/almoxarifado");
                 } else {
-                    loadMenu(progressId, menuId);
+                    loadMenu(progressId, menuId, tela, true);
                 }
             } catch (e) {
                 alert("Ops! Não foi possível realizar validação de perfil.");
@@ -32,13 +32,14 @@ function validarPerfil(tela, progressId, menuId) {
 
                 window.location.replace("http://localhost/almoxarifado");
             }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert("Ops! Não foi possível completar a validação do perfil.");
 
             if (progressId != null && progressId != undefined) {
                 $("#"+progressId).hide();
             }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert("Ops! Não foi possível completar a validação do perfil.");
+
             //console.log(xhr.status);
             console.error(xhr.responseText);
             console.error(thrownError);
@@ -48,7 +49,7 @@ function validarPerfil(tela, progressId, menuId) {
     });
 }
 
-function loadMenu(progressId, menuId) {
+function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
     var parametros = {
         "metodo": "CarregarMenu"
     };
@@ -70,49 +71,65 @@ function loadMenu(progressId, menuId) {
                 if (parseInt(ret.valido) != 1) {
                     alert(ret.mensagem);
 
-                    window.location.replace("http://localhost/almoxarifado");
+                    if (redirecionarErro) {
+                        window.location.replace("http://localhost/almoxarifado");
+                    }
                 } else {
                     var menuHTML = "";
                     var arrMenu = ret.telas.menu;
-                    var arrTelas = ret.telas.tela;
-                    for (let i = 0; i < arrMenu.length; i++) {
-                        var url = "";
-                        const menu = arrMenu[i];
-                        //console.log(menu);
-                        for (let t = 0; t < arrTelas.length; t++) {
-                            const tela = arrTelas[t];
-                            if (menu == tela.menu) {
-                                //console.log(tela);
-                                url = "../"+tela.diretorio;
-                                break;
-                            }
-                        }
 
-                        if (url != null && url != undefined && url != "") {
-                            menuHTML += '<a class="list-group-item list-group-item-action list-group-item-light p-3" href="'+url+'">'+menu+'</a>';
+                    for (let i = 0; i < arrMenu.length; i++) {
+                        const menu = arrMenu[i];
+                        var url = "";
+                        var urlAtiva = "";
+
+                        if (menu.sub_menu == 0 && menu.telas[0] != null && menu.telas[0] != undefined) {
+                            url = menu.telas[0].diretorio;
+
+                            if (telaAtual == url) {
+                                urlAtiva = "active";
+                            }
+                            
+                            if (url != null && url != undefined && url != "") {
+                                menuHTML += '<a href="../'+url+'" class="nav_link '+urlAtiva+'">';
+                                menuHTML +=     '<i class="'+menu.icone+' nav_icon"></i>';
+                                menuHTML +=     '<span class="nav_name">'+menu.titulo+'</span>';
+                                menuHTML += '</a>';
+                            }
                         }
                     }
 
                     $("#"+menuId).html(menuHTML);
+
+                    if (progressId != null && progressId != undefined) {
+                        $("#"+progressId).hide();
+                    }
                 }
             } catch (e) {
                 alert("Ops! Não foi possível realizar validação de perfil.");
                 console.error(e);
 
-                window.location.replace("http://localhost/almoxarifado");
-            }
-
-            if (progressId != null && progressId != undefined) {
-                $("#"+progressId).hide();
+                if (redirecionarErro) {
+                    window.location.replace("http://localhost/almoxarifado");
+                }
             }
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert("Ops! Não foi possível completar a validação do perfil.");
+            
             //console.log(xhr.status);
             console.error(xhr.responseText);
             console.error(thrownError);
 
-            window.location.replace("http://localhost/almoxarifado");
+            if (redirecionarErro) {
+                window.location.replace("http://localhost/almoxarifado");
+            }
         }
     });
+}
+
+function logoutSistema() {
+    if (confirm("Deseja sair?")) {
+        window.location.replace("http://localhost/almoxarifado");   
+    }
 }
