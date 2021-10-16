@@ -1,0 +1,12 @@
+.input-search {
+    height: 50px !important;
+    outline: none !important;
+}
+
+.input-group-search .btn {
+    border-radius: 0rem 0.25rem 0.25rem 0rem !important;
+    height: 50px;
+    width: 56px;
+    margin-left: -1px;
+    outline: none !important;
+}

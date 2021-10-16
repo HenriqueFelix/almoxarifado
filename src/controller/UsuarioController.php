@@ -59,43 +59,65 @@
                                 FROM perfil_telas pt
                                     LEFT JOIN sistema_telas t ON t.codigo = pt.tela 
                                 WHERE pt.perfil = '".$codigoPerfil."' 
+                                    AND t.menu > 0 
+                                    AND t.ativo = '1' 
                                 ORDER BY t.ordem ASC; ";
-                        
+
                         $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
                         if ($query) {
                             if (mysqli_num_rows($query) > 0) {
-                                $i = 0;
+                                $codigosMenus = "";
                                 $t = 0;
 
-                                while($Aux = mysqli_fetch_array($query)) {
-                                    if (!in_array(trim($Aux['menu']), $menu)) {
-                                        $menu[$i] = trim($Aux['menu']);
-                                        $i++;
-                                    }
+                                while ($Aux = mysqli_fetch_array($query)) {
+                                    $perfilTelas[$t]['codigo']    = (int)$Aux['codigo'];
+                                    $perfilTelas[$t]['menu']      = (int)$Aux['menu'];
+                                    $perfilTelas[$t]['titulo']    = trim($Aux['titulo']);
+                                    $perfilTelas[$t]['icone']     = trim($Aux['icone']);
+                                    $perfilTelas[$t]['diretorio'] = trim($Aux['dir']);
 
-                                    $perfilTelas[$t]['codigo']    = $Aux['codigo'];
-                                    $perfilTelas[$t]['menu']      = trim($Aux['menu']);
-                                    $perfilTelas[$t]['diretorio'] = $Aux['dir'];
+                                    $codigosMenus .= (int)$Aux['menu'].",";
+
                                     $t++;
                                 }
 
-                                $telas['menu'] = $menu;
-                                $telas['tela'] = $perfilTelas;
-                                /*
-                                $i = 0;
-                                $t = 0;
-                                for ($i=0; $i < count($menu); $i++) { 
-                                    $descMenu = $menu[$i];
-                                    $t = 0;
-                                    foreach ($perfilTelas as $key => $value) {
-                                        if ($descMenu == $value['menu']) {
-                                            $telas[$descMenu][$t]['codigo']    = $value['codigo'];
-                                            $telas[$descMenu][$t]['diretorio'] = $value['diretorio'];
+                                if ($codigosMenus != "") {
+                                    $codigosMenus = substr($codigosMenus, 0, -1);
+                                }
+
+                                $SQL = "SELECT m.* 
+                                        FROM sistema_menu m 
+                                        WHERE m.codigo IN(".$codigosMenus.") 
+                                            AND m.ativo = '1' 
+                                        ORDER BY m.ordem ASC; ";
+                                
+                                $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
+                                if ($query) {
+                                    if (mysqli_num_rows($query) > 0) {
+                                        $t = 0;
+
+                                        while ($Aux = mysqli_fetch_array($query)) {
+                                            $menu[$t]['codigo']    = (int)$Aux['codigo'];
+                                            $menu[$t]['titulo']    = trim($Aux['titulo']);
+                                            $menu[$t]['icone']     = trim($Aux['icone']);
+                                            $menu[$t]['sub_menu']  = (int)$Aux['sub_menu'];
+                                            $menu[$t]['telas']     = array();
+
                                             $t++;
                                         }
                                     }
                                 }
-                                */
+
+                                foreach ($menu as $keyMenu => $valueMenu) {
+                                    foreach ($perfilTelas as $keyTela => $valueTela) {
+                                        if ($valueMenu['codigo'] == $valueTela['menu']) {
+                                            array_push($menu[$keyMenu]['telas'], $valueTela);
+                                        }
+                                    }
+                                }
+
+                                $telas['menu'] = $menu;
+                                $telas['tela'] = $perfilTelas;
                             } else {
                                 throw new \Exception("Ops! Telas não disponível para o perfil do usuário.");
                             }
