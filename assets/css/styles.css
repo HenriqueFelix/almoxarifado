@@ -55,6 +55,14 @@
   pointer-events: none;
 }
 
+.top5 {
+  margin-top: 5px !important;
+}
+
+.top10 {
+  margin-top: 10px !important;
+}
+
 .top15 {
   margin-top: 15px !important;
 }
@@ -71,68 +79,20 @@
   height: 50px !important;
 }
 
-.progress-area {
-  display: none;
-  position: fixed;
-  background: #444444d1;
-  z-index: 99999;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.custom-btn-radius {
+  height: 40px !important;
+  border-radius: 360px !important;
 }
 
-.progress-area .slider {
-  position: absolute;
-  width: 50%;
-  margin-left: 25%;
-  margin-top: 20%;
-  height: 5px;
-  overflow-x: hidden;
+.btn-labeled {
+  padding-top: 7px;
+  padding-bottom: 0;
+  padding-left: 25px;
+  padding-right: 20px;
 }
 
-.progress-area .line {
-  position: absolute;
-  opacity: 0.4;
-  background: #4a8df8;
-  width: 150%;
-  height: 5px;
-}
-
-.progress-area .subline {
-  position: absolute;
-  background: #4a8df8;
-  height: 5px;
-}
-
-.progress-area .inc {
-  animation: in
-  crease 2s infinite;
-}
-
-.progress-area .dec {
-  animation: decrease 2s 0.5s infinite;
-}
-
-@keyframes increase {
-  from {
-    left: -5%;
-    width: 5%;
-  }
-  to {
-    left: 130%;
-    width: 100%;
-  }
-}
-@keyframes decrease {
-  from {
-    left: -80%;
-    width: 80%;
-  }
-  to {
-    left: 110%;
-    width: 10%;
-  }
+.btn-label {
+  position: relative;
+  top: 2px;
+  left: -5px;
 }

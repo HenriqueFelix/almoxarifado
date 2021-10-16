@@ -1,45 +1,28 @@
 .sidenav {
     height: 100%;
-    background-color: #1473e6;
+    background-color: #105dbc;
     overflow-x: hidden;
     padding-top: 20px;
+    width: 55%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
 }
 
 .main {
     padding: 0px 10px;
+    margin-left: 55%;
 }
 
 .login-form {
+    margin-top: 30%;
     padding: 25px;
 }
 
 @media screen and (max-height: 450px) {
     .sidenav {
         padding-top: 15px;
-    }
-}
-
-@media screen and (max-width: 450px) {
-    .login-form {
-        margin-top: 20%;
-    }
-}
-
-@media screen and (min-width: 768px) {
-    .main {
-        margin-left: 55%;
-    }
-
-    .sidenav {
-        width: 55%;
-        position: fixed;
-        z-index: 1;
-        top: 0;
-        left: 0;
-    }
-
-    .login-form {
-        margin-top: 30%;
     }
 }
 
@@ -54,7 +37,20 @@
     font-weight: 300;
 }
 
-.btn-primary {
-    background-color: #1473e6 !important;
-    color: #fff;
+@media only screen and (max-device-width: 480px) {
+    .sidenav {
+        width: 33.33%;
+    }
+
+    .login-main-text {
+        margin-top: 10%;
+    }
+
+    .main {
+        margin-left: 33.33%;
+    }
+
+    .login-form {
+        margin-top: 15%;
+    }
 }

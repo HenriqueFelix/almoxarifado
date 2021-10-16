@@ -115,7 +115,6 @@
                 $validaTela = 0;
                 $arrTelaAtiva = $_SESSION['usuario']['perfil']['telas']['tela'];
                 foreach ($arrTelaAtiva as $keyTela => $value) {
-                    //echo "<pre>"; var_dump($value); die();
                     if (trim($value['diretorio']) == trim($tela_atual)) {
                         $validaTela = 1;
                         break;
@@ -131,7 +130,7 @@
             $arrRetorno = array();
             $arrRetorno['valido']   = (int)$valido;
             $arrRetorno['mensagem'] = $msg;
-            $arrRetorno['inicio']   = $timeToken;
+            $arrRetorno['usuario']  = $_SESSION['usuario'];
 
             DBClose($ConexaoMy);
 
