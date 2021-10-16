@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/loading.css" />
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
@@ -17,13 +18,29 @@
 
     <script type="text/javascript">
         $(function () {
-            validarPerfil("usuario/cadastrar.html", "load-div", "menu-div");
+            var promiseValidacaoUsuario = new Promise((resolve, reject) => {
+                try {
+                    validarPerfil("usuario/cadastrar.html", "load-div", "menu-div", resolve);
+                } catch (e) {
+                    reject(e);
+                }
+            });
 
-            carregarPerfis();
+            promiseValidacaoUsuario.then(resposta => {
+                try {
+                    if (resposta != null && resposta != undefined && parseInt(resposta) == 1) {
+                        carregarPerfis();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, erro => {
+                console.error(erro);
+            });
         });
 
         function carregarPerfis() {
-
+            console.log("ZZZZZZZZZZ");
         }
 
         function cadastrarUsuario() {

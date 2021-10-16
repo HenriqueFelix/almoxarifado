@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/loading.css" />
     <link rel="stylesheet" href="../assets/css/search-input.css" />
 
     <script src="../assets/js/bootstrap.min.js"></script>
@@ -18,8 +19,72 @@
 
     <script type="text/javascript">
         $(function () {
-            validarPerfil("usuario/consultar.html", "load-div", "menu-div");
+            var promiseValidacaoUsuario = new Promise((resolve, reject) => {
+                try {
+                    validarPerfil("usuario/consultar.html", "load-div", "menu-div", resolve);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+
+            promiseValidacaoUsuario.then(resposta => {
+                try {
+                    if (resposta != null && resposta != undefined && parseInt(resposta) == 1) {
+                        consultarUsuarios();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, erro => {
+                console.error(erro);
+            });
         });
+
+        function consultarUsuarios() {
+            var tabela = $("#tabela-usuarios");
+            var inputPesquisa = $("#tabela-pesquisa").val();
+
+            var parametros = {
+                "metodo": "ConsultarUsuarios",
+                "query": inputPesquisa,
+                "page": 0,
+                "max": 100,
+            };
+
+            $.ajax({
+                url: "../src/api/usuario.php",
+                type: "GET",
+                ContentType: 'application/json',
+                data: parametros,
+                beforeSend: function () {
+                    $("#load-div").show();
+                },
+                success: function (ret) {
+                    console.log(ret);
+
+                    try {
+                        if (parseInt(ret.valido) == 1) {
+                            //window.location.replace("operacional/inicio.html");
+                        } else {
+                            alert(ret.mensagem);
+                            $("#load-div").hide();
+                        }
+                    } catch (e) {
+                        alert("Ops! Não foi possível consultar os usuários.");
+                        $("#load-div").hide();
+                        console.error(e);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("Ops! Não foi possível completar a requisição de consulta.");
+                    $("#load-div").hide();
+
+                    //console.log(xhr.status);
+                    console.error(xhr.responseText);
+                    console.error(thrownError);
+                }
+            });
+        }
     </script>
 </head>
 
@@ -61,7 +126,8 @@
         <div class="row top15">
             <div class="col-md-4 col-xs-6">
                 <div class="input-group input-group-search">
-                    <input type="text" class="form-control input-search" placeholder="Digite o que você quer encontrar.">
+                    <input id="tabela-pesquisa" type="text" class="form-control input-search"
+                        placeholder="Digite o que você quer encontrar.">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
                             <i class="bx bx-search"></i>
@@ -71,19 +137,44 @@
             </div>
 
             <div class="col-md-8 col-xs-6 all-right">
-                <a class="btn btn-primary custom-btn" href="cadastrar.html">Novo usuário</a>
+                <a href="cadastrar.html" class="btn btn-labeled btn-primary custom-btn-radius top5">
+                    <span class="btn-label">
+                        <i class="bx bx-plus"></i>
+                    </span>
+                    Novo usuário
+                </a>
             </div>
         </div>
 
-        <div class="row" style="margin-top: 20px;">
+        <div class="row top15">
             <div class="col-md-12">
-                <table class="table table-bordered">
-                    <tr>
-                        <td>Nome</td>
-                        <td>E-mail</td>
-                        <td>Função</td>
-                        <td>Ações</td>
-                    </tr>
+                <table id="tabela-usuarios" class="table">
+                    <caption>List of users</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Função</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                        </tr>
+                        <tr>
+                            <td>Jacob</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                        </tr>
+                        <tr>
+                            <td>Larry</td>
+                            <td>the Bird</td>
+                            <td>@twitter</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>

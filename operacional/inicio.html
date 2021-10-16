@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/loading.css" />
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
@@ -17,7 +18,27 @@
 
     <script type="text/javascript">
         $(function () {
-            validarPerfil("operacional/inicio.html", "load-div", "menu-div");
+            var promiseValidacaoUsuario = new Promise((resolve, reject) => {
+                try {
+                    validarPerfil("operacional/inicio.html", "load-div", "menu-div", resolve);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+
+            promiseValidacaoUsuario.then(resposta => {
+                try {
+                    if (resposta != null && resposta != undefined) {
+                        if (parseInt(resposta) == 1) {
+
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, erro => {
+                console.error(erro);
+            });
         });
     </script>
 </head>

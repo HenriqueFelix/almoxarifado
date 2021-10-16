@@ -1,12 +1,20 @@
+//var GL_URLPAGE = "http://localhost/";
+var GL_URLPAGE = "http://192.168.0.108/";
+var GL_USUARIO_LOGADO;
 
-function validarPerfil(tela, progressId, menuId) {
+function validarPerfil(tela, progressId, menuId, resolvePromise) {
     var parametros = {
         "metodo": "ValidarPerfil", 
         "tela" : tela,
     };
 
+    var urlRequest = "../src/api/usuario.php";
+    if (tela == "index.html") {
+        urlRequest = "src/api/usuario.php";
+    }
+
     $.ajax({
-        url: "http://localhost/almoxarifado/src/api/usuario.php",
+        url: urlRequest,
         type: "GET",
         ContentType: 'application/json',
         data: parametros,
@@ -22,15 +30,16 @@ function validarPerfil(tela, progressId, menuId) {
                 if (parseInt(ret.valido) != 1) {
                     alert(ret.mensagem);
 
-                    window.location.replace("http://localhost/almoxarifado");
+                    window.location.replace(GL_URLPAGE+"/almoxarifado");
                 } else {
-                    loadMenu(progressId, menuId, tela, true);
+                    GL_USUARIO_LOGADO = ret.usuario;
+                    loadMenu(progressId, menuId, tela, true, resolvePromise);
                 }
             } catch (e) {
                 alert("Ops! Não foi possível realizar validação de perfil.");
                 console.error(e);
 
-                window.location.replace("http://localhost/almoxarifado");
+                window.location.replace(GL_URLPAGE+"/almoxarifado");
             }
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -44,18 +53,23 @@ function validarPerfil(tela, progressId, menuId) {
             console.error(xhr.responseText);
             console.error(thrownError);
 
-            window.location.replace("http://localhost/almoxarifado");
+            window.location.replace(GL_URLPAGE+"/almoxarifado");
         }
     });
 }
 
-function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
+function loadMenu(progressId, menuId, telaAtual, redirecionarErro, resolvePromise) {
+    var urlRequest = "../src/api/usuario.php";
+    if (telaAtual == "index.html") {
+        urlRequest = "src/api/usuario.php";
+    }
+
     var parametros = {
         "metodo": "CarregarMenu"
     };
 
     $.ajax({
-        url: "http://localhost/almoxarifado/src/api/usuario.php",
+        url: urlRequest,
         type: "GET",
         ContentType: 'application/json',
         data: parametros,
@@ -72,7 +86,7 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
                     alert(ret.mensagem);
 
                     if (redirecionarErro) {
-                        window.location.replace("http://localhost/almoxarifado");
+                        window.location.replace(GL_URLPAGE+"/almoxarifado");
                     }
                 } else {
                     var menuHTML = "";
@@ -80,6 +94,7 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
 
                     for (let i = 0; i < arrMenu.length; i++) {
                         const menu = arrMenu[i];
+
                         var url = "";
                         var urlAtiva = "";
 
@@ -88,6 +103,13 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
 
                             if (telaAtual == url) {
                                 urlAtiva = "active";
+                            } else {
+                                for (let m = 0; m < menu.telas.length; m++) {
+                                    const telasMenu = menu.telas[m];
+                                    if (telaAtual == telasMenu.diretorio) {
+                                        urlAtiva = "active";
+                                    }
+                                }
                             }
                             
                             if (url != null && url != undefined && url != "") {
@@ -101,8 +123,22 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
 
                     $("#"+menuId).html(menuHTML);
 
-                    if (progressId != null && progressId != undefined) {
-                        $("#"+progressId).hide();
+                    if (menuHTML != null && menuHTML != undefined && menuHTML.trim() != "") {
+                        if (progressId != null && progressId != undefined) {
+                            $("#"+progressId).hide();
+                        }
+    
+                        if (resolvePromise != null && resolvePromise != undefined) {
+                            setInterval(function(){
+                                resolvePromise('1');
+                            }, 500);
+                        }
+                    } else {
+                        alert("Não foi possível identificar as telas do usuário.");
+
+                        if (redirecionarErro) {
+                            window.location.replace(GL_URLPAGE+"/almoxarifado");
+                        }
                     }
                 }
             } catch (e) {
@@ -110,19 +146,19 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
                 console.error(e);
 
                 if (redirecionarErro) {
-                    window.location.replace("http://localhost/almoxarifado");
+                    window.location.replace(GL_URLPAGE+"/almoxarifado");
                 }
             }
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            alert("Ops! Não foi possível completar a validação do perfil.");
+            alert("Ops! Não foi possível completar a validação do perfil do usuário.");
             
             //console.log(xhr.status);
             console.error(xhr.responseText);
             console.error(thrownError);
 
             if (redirecionarErro) {
-                window.location.replace("http://localhost/almoxarifado");
+                window.location.replace(GL_URLPAGE+"/almoxarifado");
             }
         }
     });
@@ -130,6 +166,6 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro) {
 
 function logoutSistema() {
     if (confirm("Deseja sair?")) {
-        window.location.replace("http://localhost/almoxarifado");   
+        window.location.replace(GL_URLPAGE+"/almoxarifado");   
     }
 }

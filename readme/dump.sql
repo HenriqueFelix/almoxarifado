@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `perfil_telas` (
   PRIMARY KEY (`codigo`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela projeto_audax.perfil_telas: ~7 rows (aproximadamente)
+-- Copiando dados para a tabela projeto_audax.perfil_telas: ~6 rows (aproximadamente)
 /*!40000 ALTER TABLE `perfil_telas` DISABLE KEYS */;
 INSERT INTO `perfil_telas` (`codigo`, `perfil`, `tela`) VALUES
 	(1, 1, 1),
@@ -53,25 +53,48 @@ INSERT INTO `perfil_telas` (`codigo`, `perfil`, `tela`) VALUES
 	(7, 1, 5);
 /*!40000 ALTER TABLE `perfil_telas` ENABLE KEYS */;
 
+-- Copiando estrutura para tabela projeto_audax.sistema_menu
+CREATE TABLE IF NOT EXISTS `sistema_menu` (
+  `codigo` bigint(20) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(150) NOT NULL,
+  `icone` varchar(150) DEFAULT NULL,
+  `ordem` int(6) NOT NULL DEFAULT 1,
+  `sub_menu` int(1) NOT NULL DEFAULT 0,
+  `ativo` int(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`codigo`),
+  UNIQUE KEY `titulo` (`titulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+
+-- Copiando dados para a tabela projeto_audax.sistema_menu: ~4 rows (aproximadamente)
+/*!40000 ALTER TABLE `sistema_menu` DISABLE KEYS */;
+INSERT INTO `sistema_menu` (`codigo`, `titulo`, `icone`, `ordem`, `sub_menu`, `ativo`) VALUES
+	(1, 'Início', 'bx bx-grid-alt', 1, 0, 1),
+	(2, 'Usuários', 'bx bxs-user', 1, 0, 1),
+	(3, 'Materiais', 'bx bxs-box', 1, 0, 1),
+	(4, 'Perfis', 'bx bxs-lock-open-alt', 1, 0, 1);
+/*!40000 ALTER TABLE `sistema_menu` ENABLE KEYS */;
+
 -- Copiando estrutura para tabela projeto_audax.sistema_telas
 CREATE TABLE IF NOT EXISTS `sistema_telas` (
   `codigo` bigint(20) NOT NULL AUTO_INCREMENT,
-  `menu` varchar(150) NOT NULL,
+  `menu` bigint(20) NOT NULL,
+  `titulo` varchar(150) NOT NULL,
   `dir` varchar(150) NOT NULL,
   `ordem` int(6) NOT NULL DEFAULT 1,
+  `icone` varchar(150) DEFAULT NULL,
   `ativo` int(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`codigo`),
   UNIQUE KEY `dir` (`dir`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela projeto_audax.sistema_telas: ~4 rows (aproximadamente)
+-- Copiando dados para a tabela projeto_audax.sistema_telas: ~5 rows (aproximadamente)
 /*!40000 ALTER TABLE `sistema_telas` DISABLE KEYS */;
-INSERT INTO `sistema_telas` (`codigo`, `menu`, `dir`, `ordem`, `ativo`) VALUES
-	(1, 'Inicio', 'operacional/inicio.html', 0, 1),
-	(2, 'Usuários', 'usuario/cadastrar.html', 1, 1),
-	(3, 'Usuários', 'usuario/consultar.html', 2, 1),
-	(4, 'Materiais', 'material/consultar.html', 4, 1),
-	(5, 'Materiais', 'material/cadastrar.html', 3, 1);
+INSERT INTO `sistema_telas` (`codigo`, `menu`, `titulo`, `dir`, `ordem`, `icone`, `ativo`) VALUES
+	(1, 1, 'Início', 'operacional/inicio.html', 1, NULL, 1),
+	(2, 2, 'Cadastrar Usúario', 'usuario/cadastrar.html', 2, NULL, 1),
+	(3, 2, 'Consultar Usúario', 'usuario/consultar.html', 1, NULL, 1),
+	(4, 3, 'Cadastrar Materiais', 'material/consultar.html', 2, NULL, 1),
+	(5, 3, 'Consultar Materiais', 'material/cadastrar.html', 1, NULL, 1);
 /*!40000 ALTER TABLE `sistema_telas` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela projeto_audax.usuario
