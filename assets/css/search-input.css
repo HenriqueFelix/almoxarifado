@@ -10,3 +10,15 @@
     margin-left: -1px;
     outline: none !important;
 }
+
+@media only screen and (max-device-width: 480px) {
+    .input-search {
+        font-size: 22px !important;
+        height: 70px !important;
+    }
+
+    .input-group-search .btn {
+        height: 70px;
+        width: 70px;
+    }
+}
