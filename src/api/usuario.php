@@ -173,6 +173,46 @@
         }
     }
 
+    if ($_GET["metodo"] == "ConsultarUsuarios") {
+        $ConexaoMy = DBConnectMy();
+
+        try {
+            $arrRetorno = array();
+            
+            $valido = 1;
+            $msg = "Listagem realizada com sucesso.";
+
+            $query = trim((string)$_GET['query']);
+            $page = (int)$_GET['page'];
+            $max = (int)$_GET['maximum'];
+
+            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, $page, $max);
+            if ($usuarios == null) {
+                $valido = 0;
+                $msg    = "Erro ao consultar usuário(s).";
+            } else {
+                $arrRetorno['total']    = $usuarios['amount'];
+                $arrRetorno['filtered'] = count($usuarios['object']);
+                $arrRetorno['data']     = $usuarios['object'];
+            }
+
+            $arrRetorno['valido']   = (int)$valido;
+            $arrRetorno['mensagem'] = $msg;
+
+            DBClose($ConexaoMy);
+
+            echo json_encode($arrRetorno);
+            die();
+        } catch (\Exception $e) {
+            http_response_code(200);
+
+            DBClose($ConexaoMy);
+
+			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
+            die();
+        }
+    }
+
     $arrRetorno = array();
     $arrRetorno['valido']   = 0;
     $arrRetorno['mensagem'] = "Requisição não identificada.";

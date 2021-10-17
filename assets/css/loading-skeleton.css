@@ -1,0 +1,59 @@
+@-webkit-keyframes jsSkeletonLoader {
+    0% {
+        background-position: -500px 0;
+    }
+    100% {
+        background-position: 500px 0;
+    }
+}
+
+@keyframes jsSkeletonLoader {
+    0% {
+        background-position: -500px 0;
+    }
+    100% {
+        background-position: 500px 0;
+    }
+}
+
+.animated-background,
+.text-line,
+.image {
+    -webkit-animation-duration: 1.25s;
+    animation-duration: 1.25s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: jsSkeletonLoader;
+    animation-name: jsSkeletonLoader;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    background: #dfdfdf;
+    /*background: linear-gradient(to right, #dfdfdf 8%, #f0f0f0 18%, #dfdfdf 33%);*/
+    background: linear-gradient(to right, #e7e7e7 8%, #f0f0f0 18%, #ededed 33%);
+    background-size: 800px 104px;
+    height: 150px;
+    position: relative;
+}
+
+.skeleton-area {
+    display: none;
+}
+
+.skeleton-area .text-line {
+    border-radius: 5px;
+}
+
+.skeleton-text-table {
+    height: 22px;
+    border-radius: 3px !important;
+}
+
+.skeleton-icon-table {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px !important;
+    /*float: left;*/
+    display: inline-flex;
+}

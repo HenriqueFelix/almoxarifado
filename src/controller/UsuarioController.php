@@ -134,5 +134,93 @@
 
             return $telas;
         }
+
+        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, $pagina, $itemsPorPagina) {
+            $arrRetorno = array();
+
+            $filtroSQL = "";
+
+            if ((int)$pagina < 1) {
+                $pagina = 1;
+            }
+
+            if ($itemsPorPagina <= 0) {
+                $itemsPorPagina = 15;
+            }
+
+            if ($query != null && trim($query) != "") {
+                $filtroSQL = " AND (
+                                    u.nome LIKE '%".$query."%' 
+                                    OR 
+                                    u.cpf LIKE '%".$query."%' 
+                                    OR 
+                                    u.email LIKE '%".$query."%' 
+                                ) ";
+            }
+
+            $offset = ((int)$pagina - 1) * (int)$itemsPorPagina;
+
+            $SQL = "SELECT u.codigo, 
+                        u.nome, 
+                        u.email,
+                        u.perfil,
+                        p.descricao AS perfil_descricao 
+                    FROM usuario u 
+                        LEFT JOIN perfil p ON p.codigo = u.perfil 
+                    WHERE 1=1
+                        AND u.ativo = 1 
+                        ".$filtroSQL." 
+                    ORDER BY u.nome ASC 
+                    LIMIT ".$offset.", ".(int)$itemsPorPagina."; ";
+			
+            //echo "<pre>"; var_dump($SQL); die();
+            $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
+            if ($query) {
+                if (mysqli_num_rows($query) > 0) {
+                    $usuarios = array();
+                    $i = 0;
+
+                    while($Aux = mysqli_fetch_array($query)) {
+                        //$Aux = array_map("utf8_encode", $Aux);
+		                //$Aux = array_map("strtoupper", $Aux);
+
+                        $usuarios[$i]['codigo']                 = (int)$Aux['codigo'];
+                        $usuarios[$i]['nome']                   = trim((string)$Aux['nome']);
+                        $usuarios[$i]['email']                  = trim((string)$Aux['email']);
+                        $usuarios[$i]['perfil']['codigo']       = (int)$Aux['perfil'];
+                        $usuarios[$i]['perfil']['descricao']    = trim((string)$Aux['perfil_descricao']);
+
+                        $i++;
+                    }
+
+                    //QUANTIDADE TOTAL
+                    $totalRegistros = $i;
+
+                    $SQL = "SELECT u.codigo 
+                            FROM usuario u 
+                            WHERE 1=1
+                                AND u.ativo = 1 
+                                ".$filtroSQL."; ";
+                    $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
+                    if ($query) {
+                        $totalRegistros = mysqli_num_rows($query);
+                    }
+
+                    $arrRetorno['object'] = $usuarios;
+                    $arrRetorno['amount'] = $totalRegistros;
+                } else {
+                    $arrRetorno['object'] = array();
+                    $arrRetorno['amount'] = 0;
+                }
+            } else {
+                throw new \Exception("Ops! Falha ao realizar consulta.");
+            }
+            
+            return $arrRetorno;
+        }
+
+        public function cadastrarUsuario($ConexaoMy, $usuarioLogado) {
+
+        }
     }
 ?>
