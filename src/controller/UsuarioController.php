@@ -24,8 +24,14 @@
                         $usuario['codigo'] = (int)$Aux['codigo'];
                         $usuario['nome'] = trim((string)$Aux['nome']);
                         $usuario['email'] = trim((string)$Aux['email']);
+                        $usuario['cpf'] = trim((string)$Aux['cpf']);
+                        $usuario['foto'] = "";
                         $usuario['perfil']['codigo'] = (int)$Aux['perfil'];
                         $usuario['perfil']['telas'] = UsuarioController::verificarPerfil($ConexaoMy, $usuario, 1);
+
+                        if (file_exists("../../upload/usuario/perfil/".$usuario['codigo'].".jpg")) {
+                            $usuario['foto'] = "../upload/usuario/perfil/".$usuario['codigo'].".jpg";
+                        }
                     }
                 } else {
                     throw new \Exception("Login ou senha inválido(s).");

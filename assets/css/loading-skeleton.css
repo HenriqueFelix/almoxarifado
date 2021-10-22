@@ -54,6 +54,13 @@
     width: 22px;
     height: 22px;
     border-radius: 3px !important;
-    /*float: left;*/
     display: inline-flex;
+}
+
+.skeleton-icon-table.right {
+    margin-left: 15px !important;
+}
+
+.skeleton-icon-table.left {
+    margin-right: 15px !important;
 }

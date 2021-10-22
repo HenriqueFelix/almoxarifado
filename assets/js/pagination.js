@@ -64,7 +64,12 @@
 
                 if (attributes.inputQuery != null && attributes.inputQuery != undefined) {
                     attributes.inputQuery.keyup(function () {
-                        self.refreshToInputQuery();
+                        var valueQuery = this.value;
+                        var regex = /^[A-Za-z0-9]+$/
+                        var isValid = regex.test(valueQuery);
+                        if (valueQuery.length == 0 || isValid) {
+                            self.refreshToInputQuery();
+                        }
                     });
                 }
 
@@ -1144,3 +1149,109 @@
     }
 
 })(this, window.jQuery);
+
+function buildTable(idSection, columnTable, skeletonTable) {
+    var section = $("#" + idSection);
+
+    var htmlSkeleton = '';
+
+    if (skeletonTable != null && skeletonTable != undefined) {
+        htmlSkeleton += '<div id="'+idSection+'-skeleton" class="skeleton-area">';
+        htmlSkeleton +=     '<table class="table">';
+        htmlSkeleton +=         '<thead>';
+        htmlSkeleton +=             '<tr>';
+
+        for (let i = 0; i < columnTable.length; i++) {
+            const column = columnTable[i];
+            var columnClass = "";
+
+            if (column.class != null && column.class != undefined) {
+                columnClass = column.class;
+            }
+
+            htmlSkeleton +=             '<th scope="col" class="'+columnClass+'">'+column.description+'</th>';
+        }
+
+        htmlSkeleton +=             '</tr>';
+        htmlSkeleton +=         '</thead>';
+
+        htmlSkeleton +=         '<tbody>';
+
+        for (let i = 0; i < skeletonTable.row; i++) {
+            htmlSkeleton +=         '<tr>';
+            
+            for (let i = 0; i < columnTable.length; i++) {
+                const column = columnTable[i];
+                var columnClass = "";
+                var skeletonClass = "";
+                var skeletonIcon = 0;
+
+                if (column.class != null && column.class != undefined) {
+                    columnClass = column.class;
+                }
+                
+                if (parseInt(column.type) == 2 && column.skeletonIcon != null && column.skeletonIcon != undefined) {
+                    skeletonIcon = column.skeletonIcon;
+                }
+
+                if (column.skeletonClass != null && column.skeletonClass != undefined) {
+                    skeletonClass = column.skeletonClass;
+                }
+
+                if (parseInt(column.type) == 2 && skeletonIcon > 0) {
+                    htmlSkeleton +=         '<td class="'+columnClass+'">';
+                    
+                        for (let c = 0; c < skeletonIcon; c++) {
+                            htmlSkeleton +=     '<div class="text-line skeleton-icon-table '+skeletonClass+'"></div>';
+                        }
+
+                    htmlSkeleton +=         '</td>';
+                } else {
+                    htmlSkeleton +=         '<td class="'+columnClass+'"><div class="text-line skeleton-text-table '+skeletonClass+'"></div></td>';
+                }
+            }
+
+            htmlSkeleton +=         '</tr>';
+        }
+
+        htmlSkeleton +=         '</tbody>';
+        htmlSkeleton +=     '</table>';
+        htmlSkeleton += '</div>';
+    }
+
+    var htmlTable = '';
+    htmlTable += '<div id="'+idSection+'-container" class="data-container"></div>';
+    htmlTable += '<div id="'+idSection+'-pagination" class="pagination-right"></div>';
+
+    if (htmlSkeleton != null && htmlSkeleton != undefined && htmlSkeleton.trim() != "") {
+        section.html(htmlSkeleton+htmlTable);
+    } else {
+        section.html(htmlTable);
+    }
+}
+
+function buildTableContent(idSection, columnTable, skeletonTable, pagination, viewCaption) {
+    var dataHtml = '';
+    dataHtml += '<table id="' + idSection + '-table" class="table">';
+    if (viewCaption) {
+        dataHtml += '    <caption id="' + idSection + '-caption">Total de registro(s): ' + pagination.totalNumber + '</caption>';
+    }
+    dataHtml += '    <thead>';
+    dataHtml += '        <tr>';
+    for (let i = 0; i < columnTable.length; i++) {
+        const column = columnTable[i];
+        var columnClass = "";
+
+        if (column.class != null && column.class != undefined) {
+            columnClass = column.class;
+        }
+
+        dataHtml +=             '<th scope="col" class="'+columnClass+'">'+column.description+'</th>';
+    }
+    dataHtml += '        </tr>';
+    dataHtml += '    </thead>';
+    dataHtml += '    <tbody></tbody>';
+    dataHtml += '</table>';
+
+    return dataHtml;
+}

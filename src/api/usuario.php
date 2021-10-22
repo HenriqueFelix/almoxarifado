@@ -75,6 +75,18 @@
         }
     }
 
+    if ($_GET["metodo"] == "LogoutSistema") {
+        $_SESSION = null;
+        session_destroy();
+
+        $arrRetorno = array();
+        $arrRetorno['valido']   = 1;
+        $arrRetorno['mensagem'] = "Deslogado do sistema.";
+
+        echo json_encode($arrRetorno);
+        die();
+    }
+    
     if ($_GET["metodo"] == "ValidarPerfil") {
         $ConexaoMy = DBConnectMy();
 
@@ -173,6 +185,36 @@
         }
     }
 
+    if ($_GET["metodo"] == "ValidarSessao") {
+        $valido = 1;
+        $msg = "Sessão valida.";
+
+        $tela_atual = trim((string)$_GET["tela"]);
+
+        if ($_SESSION == null || count($_SESSION) <= 0) {
+            $valido = 0;
+            $msg = "Sessão inválida!";
+        } else if ($_SESSION['token_sessao'] == null || trim((string)$_SESSION['token_sessao']) == "") {
+            $valido = 0;
+            $msg = "Token da sessão é inválido!";
+        } else if ($tela_atual == null || $tela_atual == "") {
+            $valido = 0;
+            $msg = "Tela inválida!";
+        } else if ($_SESSION['usuario'] == null || count($_SESSION['usuario']) <= 0 || (int)$_SESSION['usuario']['codigo'] <= 0) {
+            $valido = 0;
+            $msg = "Usuário não identificado na sessão!";
+        }
+
+        $arrRetorno = array();
+        $arrRetorno['valido']   = (int)$valido;
+        $arrRetorno['mensagem'] = $msg;
+
+        sleep(1);
+
+        echo json_encode($arrRetorno);
+        die();
+    }
+
     if ($_GET["metodo"] == "ConsultarUsuarios") {
         $ConexaoMy = DBConnectMy();
 
@@ -200,6 +242,8 @@
             $arrRetorno['mensagem'] = $msg;
 
             DBClose($ConexaoMy);
+
+            sleep(3);
 
             echo json_encode($arrRetorno);
             die();
