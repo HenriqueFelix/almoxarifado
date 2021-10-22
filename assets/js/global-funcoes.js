@@ -49,7 +49,9 @@ function validarPerfil(tela, progressId, menuId, resolvePromise) {
                 console.error(e);
                 alert("Ops! Não foi possível realizar validação de perfil.");
 
-                window.location.replace(GL_URLPAGE+"/almoxarifado");
+                setInterval(function(){
+                    window.location.replace(GL_URLPAGE+"/almoxarifado");
+                }, 3000);
             }
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -59,11 +61,9 @@ function validarPerfil(tela, progressId, menuId, resolvePromise) {
 
             alert("Ops! Não foi possível completar a validação do perfil.");
 
-            if (verificarObjeto(progressId)) {
-                $("#"+progressId).hide();
-            }
-
-            window.location.replace(GL_URLPAGE+"/almoxarifado");
+            setInterval(function(){
+                window.location.replace(GL_URLPAGE+"/almoxarifado");
+            }, 3000);
         }
     });
 }
