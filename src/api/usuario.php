@@ -65,7 +65,7 @@
             echo json_encode($arrRetorno);
             die();
         } catch (\Exception $e) {
-            http_response_code(200); // 404
+            http_response_code(200);
 
             DBClose($ConexaoMy);
             session_destroy();
@@ -122,6 +122,7 @@
             }
 
             if ((int)$valido != 1) {
+                $_SESSION = null;
                 session_destroy();
             } else if ($_SESSION['usuario']['perfil'] != null) {
                 $validaTela = 0;
@@ -139,6 +140,11 @@
                 }
             }
 
+            if ((int)$valido != 1) {
+                $_SESSION = null;
+                session_destroy();
+            }
+
             $arrRetorno = array();
             $arrRetorno['valido']   = (int)$valido;
             $arrRetorno['mensagem'] = $msg;
@@ -151,8 +157,10 @@
         } catch (\Exception $e) {
             http_response_code(200); // 404
 
-            DBClose($ConexaoMy);
+            $_SESSION = null;
             session_destroy();
+
+            DBClose($ConexaoMy);
 
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
@@ -179,6 +187,9 @@
             http_response_code(200); // 404
 
             DBClose($ConexaoMy);
+
+            $_SESSION = null;
+            session_destroy();
 
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
