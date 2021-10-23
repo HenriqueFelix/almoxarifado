@@ -1,0 +1,9 @@
+.tmp
+*.tmp
+*.tmp.*
+
+*.log
+log.txt
+
+/upload
+/www-test
