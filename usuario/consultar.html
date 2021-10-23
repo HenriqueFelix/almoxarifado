@@ -8,21 +8,43 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="../assets/css/select2.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <link rel="stylesheet" href="../assets/css/loading.css" />
     <link rel="stylesheet" href="../assets/css/search-input.css" />
     <link rel="stylesheet" href="../assets/css/pagination.css" />
     <link rel="stylesheet" href="../assets/css/table.css" />
     <link rel="stylesheet" href="../assets/css/loading-skeleton.css" />
+    <link rel="stylesheet" href="../assets/css/outline-input.css">
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/select2.min.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
     <script src="../assets/js/menu-script.js"></script>
     <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/outline-input.js"></script>
 
     <script type="text/javascript">
         $(function () {
+            $(".select2").select2();
+
+            initSelect2Outline("filtro-perfil", 1);
+            initSelect2Outline("filtro-ativo", 0);
+
+            $("#tabela-usuarios-modal-filter").on("shown.bs.modal", function () {
+                $("#filtro-perfil").select2({
+                    dropdownParent: "#tabela-usuarios-modal-filter"
+                });
+
+                $("#filtro-ativo").select2({
+                    dropdownParent: "#tabela-usuarios-modal-filter"
+                });
+
+                initSelect2Outline("filtro-perfil", 1);
+                initSelect2Outline("filtro-ativo", 0);
+            });
+
             var promiseValidacaoUsuario = new Promise((resolve, reject) => {
                 try {
                     validarPerfil("usuario/consultar.html", "load-div", "menu-div", resolve);
@@ -80,6 +102,9 @@
 
             var dataContainer = $("#" + idTabela + "-pagination");
             var inputPesquisa = $("#" + idTabela + "-pesquisa");
+            var buttonModalQuery = $("#" + idTabela + "-pesquisa-button");
+            var buttonFilter = $("#" + idTabela + "-filter-button");
+            var modalFilter = $("#" + idTabela + "-modal-filter");
 
             try {
                 dataContainer.pagination({
@@ -89,6 +114,10 @@
                         queryParam: 'query'
                     },
                     inputQuery: inputPesquisa,
+                    buttonModalQuery: buttonModalQuery,
+                    buttonFilter: buttonFilter,
+                    modalFilter: modalFilter,
+                    sectionId: idTabela,
                     dataSource: '../src/api/usuario.php?metodo=ConsultarUsuarios',
                     locator: 'data',
                     pageSize: itemPorPagina,
@@ -102,6 +131,10 @@
 
                             if (inputPesquisa != null && inputPesquisa != undefined) {
                                 inputPesquisa.prop('disabled', true);
+                            }
+
+                            if (buttonModalQuery != null && buttonModalQuery != undefined) {
+                                buttonModalQuery.prop('disabled', true);
                             }
                         }
                     },
@@ -162,7 +195,14 @@
 
                         if (inputPesquisa != null && inputPesquisa != undefined) {
                             inputPesquisa.prop('disabled', false);
-                            inputPesquisa.focus();
+
+                            if (inputPesquisa.val().trim() != "") {
+                                inputPesquisa.focus();
+                            }
+                        }
+
+                        if (buttonModalQuery != null && buttonModalQuery != undefined) {
+                            buttonModalQuery.prop('disabled', false);
                         }
 
                         $("#" + idTabela + "-container").show();
@@ -213,10 +253,9 @@
         <div class="row top15">
             <div class="col-xs-6 col-sm-6 col-lg-4">
                 <div class="input-group input-group-search">
-                    <input id="tabela-usuarios-pesquisa" type="text" class="form-control input-search"
-                        placeholder="Digite o que você quer encontrar." autocomplete="off" disabled />
+                    <input id="tabela-usuarios-pesquisa" type="text" class="form-control input-search" placeholder="Digite o que você quer encontrar." autocomplete="off" disabled />
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button">
+                        <button type="button" id="tabela-usuarios-pesquisa-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tabela-usuarios-modal-filter">
                             <i class="bx bx-search"></i>
                         </button>
                     </div>
@@ -238,6 +277,74 @@
                 <section id="tabela-usuarios"></section>
             </div>
         </div>
+
+        <!-- MODAL FILTROS { -->
+        <div class="modal fade hide" id="tabela-usuarios-modal-filter" tabindex="-1"
+            aria-labelledby="tabela-usuarios-modal-filterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tabela-usuarios-modal-filterTitle">Filtrar usuário(s)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="input-container">
+                                    <input id="filtro-nome" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="nome" />
+                                    <label class="label" for="filtro-nome">Nome</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="input-container">
+                                    <input id="filtro-cpf" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="cpf" />
+                                    <label class="label" for="filtro-cpf">CPF</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row top25">
+                            <div class="col-md-7">
+                                <div class="input-container">
+                                    <input id="filtro-email" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="email" />
+                                    <label class="label" for="filtro-email">E-mail</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="input-container select">
+                                    <select id="filtro-perfil" class="table-filter select2 multiple w100" multiple="multiple" required="false" data-table="tabela-usuarios" data-filter="perfil" data-type="select-multiple">
+                                        <option value="AL">Alabama</option>
+                                        <option value="WY">Wyoming</option>
+                                        <option value="PE">Pernambuco</option>
+                                        <option value="PB">Rio de Janeiro</option>
+                                        <option value="PB">Rio Grande do Norte</option>
+                                        <option value="PB">Curitiba</option>
+                                    </select>
+                                    <label class="label" for="filtro-perfil">Perfil</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row top25">
+                            <div class="col-md-5">
+                                <div class="input-container select">
+                                    <select id="filtro-ativo" class="table-filter select2 w100" required="false" data-table="tabela-usuarios" data-filter="ativo" data-type="select">
+                                        <option value="1">Ativo</option>
+                                        <option value="0">Inativo</option>
+                                    </select>
+                                    <label class="label" for="filtro-ativo">Status</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="tabela-usuarios-filter-button" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- MODAL FILTROS } -->
     </div>
 
     <div id="load-div" class="progress-area">

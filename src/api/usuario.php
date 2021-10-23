@@ -235,11 +235,41 @@
             $valido = 1;
             $msg = "Listagem realizada com sucesso.";
 
-            $query = trim((string)$_GET['query']);
+            $query = "";
+            $queryNome = "";
+            $queryEmail = "";
+            $queryCPF = "";
+            $queryPerfil = 0;
+            $queryAtivo = 1;
+
+            if (isset($_GET['query'])) {
+                $query = trim((string)$_GET['query']);
+            }
+
+            if (isset($_GET['nome'])) {
+                $queryNome = trim((string)$_GET['nome']);
+            }
+
+            if (isset($_GET['email'])) {
+                $queryEmail = trim((string)$_GET['email']);
+            }
+
+            if (isset($_GET['cpf'])) {
+                $queryCPF = trim((string)$_GET['cpf']);
+            }
+
+            if (isset($_GET['perfil'])) {
+                $queryPerfil = (int)$_GET['perfil'];
+            }
+
+            if (isset($_GET['ativo'])) {
+                $queryAtivo = (int)$_GET['ativo'];
+            }
+
             $page = (int)$_GET['page'];
             $max = (int)$_GET['maximum'];
 
-            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, $page, $max);
+            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, null, $page, $max);
             if ($usuarios == null) {
                 $valido = 0;
                 $msg    = "Erro ao consultar usuário(s).";
@@ -266,6 +296,10 @@
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
         }
+    }
+
+    if ($_POST["metodo"] == "CadastrarUsuario") {
+        
     }
 
     $arrRetorno = array();

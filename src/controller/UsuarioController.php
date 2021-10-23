@@ -157,7 +157,7 @@
             return $telas;
         }
 
-        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, $pagina, $itemsPorPagina) {
+        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, $usuarioFiltro, $pagina, $itemsPorPagina) {
             $arrRetorno = array();
 
             $filtroSQL = "";

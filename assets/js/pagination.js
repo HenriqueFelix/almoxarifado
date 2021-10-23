@@ -68,8 +68,18 @@
                         var regex = /^[A-Za-z0-9]+$/
                         var isValid = regex.test(valueQuery);
                         if (valueQuery.length == 0 || isValid) {
-                            self.refreshToInputQuery();
+                            self.refreshToQuery();
                         }
+                    });
+                }
+
+                if (attributes.buttonFilter != null && attributes.buttonFilter != undefined) {
+                    $(attributes.buttonFilter).click(function() {
+                        if (attributes.modalFilter != null && attributes.modalFilter != undefined) {
+                            $(attributes.modalFilter).modal('toggle');
+                        }
+
+                        self.refreshToQuery();
                     });
                 }
 
@@ -403,6 +413,54 @@
                 postData[alias.pageNumber ? alias.pageNumber : 'pageNumber'] = pageNumber;
                 postData[alias.queryParam ? alias.queryParam : 'queryParam'] = queryParam;
 
+                var filterElements = [];
+
+                try {
+                    $(".table-filter").each(function() {    
+                        try {
+                            var tableIdInput = $(this).data('table');
+                            var filterInput = $(this).data('filter');
+    
+                            if (tableIdInput != null && tableIdInput != undefined && filterInput != null && filterInput != undefined) {
+                                if (attributes.sectionId == tableIdInput) {
+                                    var objFilter = {
+                                        tag: filterInput,
+                                        element: $(this)
+                                    }
+    
+                                    filterElements.push(objFilter);
+                                }
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    });
+                } catch (error) {
+                    console.error(error);
+
+                    filterElements = null;
+                }
+
+                //console.log(filterElements);
+
+                if (filterElements != null && filterElements != undefined && filterElements.length > 0) {
+                    for (let p = 0; p < filterElements.length; p++) {
+                        try {
+                            const elementFilter = filterElements[p];
+                            if (elementFilter != null && elementFilter != undefined) {
+                                var queryTag = elementFilter.tag;
+                                var queryInput = $(elementFilter.element).val();
+
+                                if (queryTag != null && queryTag != undefined && queryTag != "" && queryInput != null && queryInput != undefined) {
+                                    postData[alias.queryTag ? alias.queryTag : queryTag] = queryInput;  
+                                }
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        } 
+                    }
+                }
+
                 var ajaxParams = $.isFunction(attributes.ajax) ? attributes.ajax() : attributes.ajax;
                 var formatAjaxParams = {
                     type: 'get',
@@ -549,11 +607,10 @@
             },
 
             refresh: function (callback) {
-                console.log(this.model.pageNumber);
                 this.go(this.model.pageNumber, callback);
             },
 
-            refreshToInputQuery: function (callback) {
+            refreshToQuery: function (callback) {
                 this.go(1, callback);
             },
 
