@@ -96,4 +96,8 @@
   .modal-backdrop.show {
     width: 100% !important;
   }
+
+  .modal-dialog {
+    max-width: 90% !important;
+  }
 }

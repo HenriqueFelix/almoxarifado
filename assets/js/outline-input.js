@@ -22,15 +22,25 @@ function initSelect2Outline(idElement, typeElement) {
 
     if (typeElement == 0) {
         $("#" + idElement).on("select2:open", function () {
-            console.log("zzz");
-            /*
-            setTimeout(function () {
-                //console.log("aaaaa");
-                //$(".select2-search input").prop("focus", false);
-                //$('.select2-search__field').focus();
-                //document.querySelector('.select2-search__field').focus();
+            try {
+                $("input.select2-search__field")[0].focus();
+            } catch (error) {
+                console.error(error);
+            }
+
+            setInterval(function () {
+                try {
+                    if ($("input.select2-search__field")[0] != null && $("input.select2-search__field")[0] != undefined) {
+                        $("input.select2-search__field")[0].focus();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }, 1000);
-            */
+        });
+    } else {
+        $("#" + idElement).on("select2:open", function () {
+            $(".select2-dropdown.select2-dropdown--below").addClass("multiple");
         });
     }
 

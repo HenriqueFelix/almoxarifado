@@ -20,6 +20,7 @@
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
     <script src="../assets/js/select2.min.js"></script>
+    <script src="../assets/js/select2-dropdownPosition.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
     <script src="../assets/js/menu-script.js"></script>
     <script src="../assets/js/pagination.js"></script>
@@ -27,22 +28,29 @@
 
     <script type="text/javascript">
         $(function () {
-            $(".select2").select2();
+            $(".select2").select2({
+                dropdownPosition: 'below'
+            });
 
             initSelect2Outline("filtro-perfil", 1);
             initSelect2Outline("filtro-ativo", 0);
 
+            //$('#tabela-usuarios-modal-filter').modal({backdrop: 'static', keyboard: false})
+
             $("#tabela-usuarios-modal-filter").on("shown.bs.modal", function () {
                 $("#filtro-perfil").select2({
+                    dropdownPosition: 'below',
                     dropdownParent: "#tabela-usuarios-modal-filter"
                 });
 
                 $("#filtro-ativo").select2({
+                    dropdownPosition: 'below',
                     dropdownParent: "#tabela-usuarios-modal-filter"
                 });
 
                 initSelect2Outline("filtro-perfil", 1);
                 initSelect2Outline("filtro-ativo", 0);
+                
             });
 
             var promiseValidacaoUsuario = new Promise((resolve, reject) => {
@@ -55,37 +63,56 @@
 
             promiseValidacaoUsuario.then(resposta => {
                 try {
-                    if (resposta != null && resposta != undefined && parseInt(resposta) == 1) {
-                        var colunas = [
-                            {
-                                description: "Nome",
-                                type: 1,
-                                class: "vertical-center-td",
+                    if (verificarObjeto(resposta) && parseInt(resposta) == 1) {
+                        var usuariosTable = new PaginationTable({
+                            sectionId: "tabela-usuarios",
+                            column: [
+                                {
+                                    description: "Nome",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "E-mail",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "Pefil",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "Ações",
+                                    type: 2,
+                                    class: "vertical-center-td all-right",
+                                    skeletonIcon: 2,
+                                    skeletonClass: "right",
+                                }
+                            ],
+                            skeletonProgress: {
+                                row: 15
                             },
-                            {
-                                description: "E-mail",
-                                type: 1,
-                                class: "vertical-center-td",
-                            },
-                            {
-                                description: "Pefil",
-                                type: 1,
-                                class: "vertical-center-td",
-                            },
-                            {
-                                description: "Ações",
-                                type: 2,
-                                class: "vertical-center-td all-right",
-                                skeletonIcon: 2,
-                                skeletonClass: "right",
+                            url: "../src/api/usuario.php?metodo=ConsultarUsuarios",
+                            maxItem: 2,
+                            callback: function (tableId, data, pagination, filter){
+                                var htmlRow = '';
+
+                                $.each(data, function (index, item) {
+                                    htmlRow += '<tr>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.nome + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.email + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.perfil.descricao + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td all-right">';
+                                    htmlRow += '       <a><i class="bx bxs-pencil"></i></a>';
+                                    htmlRow += '       <a><i class="bx bxs-trash-alt"></i></a>';
+                                    htmlRow += '   </td>';
+                                    htmlRow += '</tr>';
+                                });
+
+                                return htmlRow;
                             }
-                        ];
-
-                        var skeleton = {
-                            row: 15
-                        };
-
-                        consultarUsuarios("tabela-usuarios", colunas, skeleton);
+                        });
                     }
                 } catch (e) {
                     console.error(e);
@@ -94,124 +121,6 @@
                 console.error(erro);
             });
         });
-
-        function consultarUsuarios(idTabela, columnTable, skeletonTable) {
-            var itemPorPagina = 15;
-
-            buildTable(idTabela, columnTable, skeletonTable);
-
-            var dataContainer = $("#" + idTabela + "-pagination");
-            var inputPesquisa = $("#" + idTabela + "-pesquisa");
-            var buttonModalQuery = $("#" + idTabela + "-pesquisa-button");
-            var buttonFilter = $("#" + idTabela + "-filter-button");
-            var modalFilter = $("#" + idTabela + "-modal-filter");
-
-            try {
-                dataContainer.pagination({
-                    alias: {
-                        pageNumber: 'page',
-                        pageSize: 'maximum',
-                        queryParam: 'query'
-                    },
-                    inputQuery: inputPesquisa,
-                    buttonModalQuery: buttonModalQuery,
-                    buttonFilter: buttonFilter,
-                    modalFilter: modalFilter,
-                    sectionId: idTabela,
-                    dataSource: '../src/api/usuario.php?metodo=ConsultarUsuarios',
-                    locator: 'data',
-                    pageSize: itemPorPagina,
-                    ajax: {
-                        beforeSend: function () {
-                            if (skeletonTable != null && skeletonTable != undefined) {
-                                $("#" + idTabela + "-skeleton").show();
-                            }
-
-                            $("#" + idTabela + "-container").hide();
-
-                            if (inputPesquisa != null && inputPesquisa != undefined) {
-                                inputPesquisa.prop('disabled', true);
-                            }
-
-                            if (buttonModalQuery != null && buttonModalQuery != undefined) {
-                                buttonModalQuery.prop('disabled', true);
-                            }
-                        }
-                    },
-                    showPrevious: false,
-                    showNext: false,
-                    totalNumberLocator: function (response) {
-                        var totalNumber = 0;
-
-                        if (response != null && response != undefined) {
-                            if (parseInt(response.valido) == 1) {
-                                totalNumber = response.total;
-                            }
-                        }
-
-                        return totalNumber;
-                    },
-                    callback: function (data, pagination) {
-                        if (data == null || data == undefined) {
-                            if (skeletonTable != null && skeletonTable != undefined) {
-                                $("#" + idTabela + "-skeleton").hide();
-                            }
-                            return;
-                        } else if (data.valido != null && data.valido != undefined && parseInt(data.valido) == 0) {
-                            if (skeletonTable != null && skeletonTable != undefined) {
-                                $("#" + idTabela + "-skeleton").hide();
-                            }
-                            alert(data.mensagem);
-                            return;
-                        }
-
-                        try {
-                            var dataHtml = buildTableContent(idTabela, columnTable, skeletonTable, pagination, true);
-                            dataContainer.prev().html(dataHtml);
-
-                            var htmlRow = '';
-
-                            $.each(data, function (index, item) {
-                                htmlRow += '<tr>';
-                                htmlRow += '   <td class="vertical-center-td">' + item.nome + '</td>';
-                                htmlRow += '   <td class="vertical-center-td">' + item.email + '</td>';
-                                htmlRow += '   <td class="vertical-center-td">' + item.perfil.descricao + '</td>';
-                                htmlRow += '   <td class="vertical-center-td all-right">';
-                                htmlRow += '       <a><i class="bx bxs-pencil"></i></a>';
-                                htmlRow += '       <a><i class="bx bxs-trash-alt"></i></a>';
-                                htmlRow += '   </td>';
-                                htmlRow += '</tr>';
-                            });
-
-                            $("#" + idTabela + "-table tbody").html(htmlRow);
-                        } catch (error) {
-                            console.error(error);
-                            alert("Erro ao montar tabela.");
-                        }
-
-                        if (skeletonTable != null && skeletonTable != undefined) {
-                            $("#" + idTabela + "-skeleton").hide();
-                        }
-
-                        if (inputPesquisa != null && inputPesquisa != undefined) {
-                            inputPesquisa.prop('disabled', false);
-
-                            if (inputPesquisa.val().trim() != "") {
-                                inputPesquisa.focus();
-                            }
-                        }
-
-                        if (buttonModalQuery != null && buttonModalQuery != undefined) {
-                            buttonModalQuery.prop('disabled', false);
-                        }
-
-                        $("#" + idTabela + "-container").show();
-                    }
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
     </script>
 </head>
 
@@ -221,7 +130,7 @@
             <i class='bx bx-menu' id="header-toggle"></i>
         </div>
         <div class="header_img">
-            <img id="profileImage" src="../upload/usuario/perfil/default.jpg" alt="">
+            <img id="profileImage" src="../assets/img/profile-default.jpg" alt="">
         </div>
     </header>
 
@@ -279,8 +188,7 @@
         </div>
 
         <!-- MODAL FILTROS { -->
-        <div class="modal fade hide" id="tabela-usuarios-modal-filter" tabindex="-1"
-            aria-labelledby="tabela-usuarios-modal-filterTitle" aria-hidden="true">
+        <div class="modal fade hide modal-custom" id="tabela-usuarios-modal-filter" tabindex="-1" aria-labelledby="tabela-usuarios-modal-filterTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -313,7 +221,7 @@
 
                             <div class="col-md-5">
                                 <div class="input-container select">
-                                    <select id="filtro-perfil" class="table-filter select2 multiple w100" multiple="multiple" required="false" data-table="tabela-usuarios" data-filter="perfil" data-type="select-multiple">
+                                    <select id="filtro-perfil" class="table-filter select2 multiple w100" multiple="multiple" required="false" data-table="tabela-usuarios" data-filter="perfil" data-type="select-multiple" data-default="">
                                         <option value="AL">Alabama</option>
                                         <option value="WY">Wyoming</option>
                                         <option value="PE">Pernambuco</option>
@@ -329,7 +237,7 @@
                         <div class="row top25">
                             <div class="col-md-5">
                                 <div class="input-container select">
-                                    <select id="filtro-ativo" class="table-filter select2 w100" required="false" data-table="tabela-usuarios" data-filter="ativo" data-type="select">
+                                    <select id="filtro-ativo" class="table-filter select2 w100" required="false" data-table="tabela-usuarios" data-filter="ativo" data-type="select" data-default="1">
                                         <option value="1">Ativo</option>
                                         <option value="0">Inativo</option>
                                     </select>

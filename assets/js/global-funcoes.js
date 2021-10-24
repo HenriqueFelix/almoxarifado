@@ -1,8 +1,14 @@
 //var GL_URLPAGE = "http://localhost/";
-var GL_URLPAGE = "http://192.168.0.101/";
+var GL_URLPAGE = "http://192.168.0.105/";
 var GL_NOME_SISTEMA = "Ctrl+A";
 var GL_VERSAO_SISTEMA = "1.0.0";
 var GL_USUARIO_LOGADO;
+
+$(function () {
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        $(".modal-custom div.modal-dialog").removeClass("modal-dialog-centered");
+    }
+});
 
 function validarPerfil(tela, progressId, menuId, resolvePromise) {
     var parametros = {
@@ -198,7 +204,7 @@ function logoutSistema(progressId) {
                 if (verificarObjeto(ret)) {
                     setInterval(function(){
                         window.location.replace(GL_URLPAGE+"/almoxarifado");
-                    }, 3000);
+                    }, 2000);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {

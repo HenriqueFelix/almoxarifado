@@ -35,7 +35,8 @@
                     $usuario['cpf'] = trim((string)$Aux['cpf']);
                     $usuario['foto'] = "";
                     $usuario['perfil']['codigo'] = (int)$Aux['perfil'];
-                    $usuario['perfil']['telas'] = UsuarioController::verificarPerfil($ConexaoMy, $usuario, 1);
+                    $usuario['perfil']['descricao'] = "zzz ".$Aux['perfil'];
+                    $usuario['perfil']['telas'] = $this->verificarPerfil($ConexaoMy, $usuario, 1);
 
                     if (file_exists("../../upload/usuario/perfil/".$usuario['codigo'].".jpg")) {
                         $usuario['foto'] = "../upload/usuario/perfil/".$usuario['codigo'].".jpg";
@@ -109,7 +110,6 @@
                                         ORDER BY m.ordem ASC; ";
                                 
                                 $stmt = $ConexaoMy->prepare($SQL);
-                                //$stmt->bindValue(':codigosMenu', $codigosMenus);
 
                                 if ($stmt->execute()) {
                                     if ($stmt->rowCount() > 0) {
@@ -157,7 +157,7 @@
             return $telas;
         }
 
-        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, $usuarioFiltro, $pagina, $itemsPorPagina) {
+        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, ?Usuario $usuarioFiltro, $pagina, $itemsPorPagina) {
             $arrRetorno = array();
 
             $filtroSQL = "";
@@ -186,6 +186,30 @@
                                 ) ";
             }
 
+            if ($usuarioFiltro != null) {
+                if ($usuarioFiltro->getCodigo() > 0) {
+                    $filtroSQL .= " AND u.codigo = :filtroCodigo ";
+                }
+
+                if (checkValue($usuarioFiltro->getNome())) {
+                    $filtroSQL .= " AND u.nome LIKE :filtroNome ";
+                }
+
+                if (checkValue($usuarioFiltro->getEmail())) {
+                    $filtroSQL .= " AND u.email LIKE :filtroEmail ";
+                }
+
+                if (checkValue($usuarioFiltro->getCpf())) {
+                    $filtroSQL .= " AND u.cpf = :filtroCPF ";
+                }
+
+                if (checkValue($usuarioFiltro->getAtivo())) {
+                    $filtroSQL .= " AND u.ativo = :filtroAtivo ";
+                }
+            } else {
+                $usuarioFiltro = new Usuario();
+            }
+
             $offset = ((int)$pagina - 1) * (int)$itemsPorPagina;
 
             $SQL = "SELECT u.codigo, 
@@ -195,15 +219,44 @@
                         p.descricao AS perfil_descricao 
                     FROM usuario u 
                         LEFT JOIN perfil p ON p.codigo = u.perfil 
-                    WHERE u.ativo = '1' 
+                    WHERE 1 = 1 
                         ".$filtroSQL." 
                     ORDER BY u.nome ASC 
                     LIMIT ".(int)$offset.", ".(int)$itemsPorPagina."; ";
 			
             $stmt = $ConexaoMy->prepare($SQL);
-            $stmt->bindValue(':queryNome', '%'.$query.'%');
-            $stmt->bindValue(':queryCPF', $query.'%');
-            $stmt->bindValue(':queryEmail', $query.'%');
+
+            if (str_contains($SQL, ":queryNome")) {
+                $stmt->bindValue(':queryNome', '%'.$query.'%');
+            }
+
+            if (str_contains($SQL, ":queryCPF")) {
+                $stmt->bindValue(':queryCPF', $query.'%');
+            }
+
+            if (str_contains($SQL, ":queryEmail")) {
+                $stmt->bindValue(':queryEmail', $query.'%');
+            }
+
+            if (str_contains($SQL, ":filtroCodigo")) {
+                $stmt->bindValue(':filtroCodigo', $usuarioFiltro->getCodigo());
+            }
+            
+            if (str_contains($SQL, ":filtroNome")) {
+                $stmt->bindValue(':filtroNome', '%'.$usuarioFiltro->getNome().'%');
+            }
+            
+            if (str_contains($SQL, ":filtroEmail")) {
+                $stmt->bindValue(':filtroEmail', $usuarioFiltro->getEmail().'%');
+            }
+
+            if (str_contains($SQL, ":filtroCPF")) {
+                $stmt->bindValue(':filtroCPF', $usuarioFiltro->getCpf());
+            }
+
+            if (str_contains($SQL, ":filtroAtivo")) {
+                $stmt->bindValue(':filtroAtivo', $usuarioFiltro->getAtivo());
+            }
 
             if ($stmt->execute()) {
                 if ($stmt->rowCount() > 0) {
@@ -225,13 +278,42 @@
 
                     $SQL = "SELECT u.codigo 
                             FROM usuario u 
-                            WHERE u.ativo = '1' 
+                            WHERE 1 = 1 
                                 ".$filtroSQL."; ";
 
                     $stmt = $ConexaoMy->prepare($SQL);
-                    $stmt->bindValue(':queryNome', '%'.$query.'%');
-                    $stmt->bindValue(':queryCPF', $query.'%');
-                    $stmt->bindValue(':queryEmail', $query.'%');
+
+                    if (str_contains($SQL, ":queryNome")) {
+                        $stmt->bindValue(':queryNome', '%'.$query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":queryCPF")) {
+                        $stmt->bindValue(':queryCPF', $query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":queryEmail")) {
+                        $stmt->bindValue(':queryEmail', $query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":filtroCodigo")) {
+                        $stmt->bindValue(':filtroCodigo', $usuarioFiltro->getCodigo());
+                    }
+                    
+                    if (str_contains($SQL, ":filtroNome")) {
+                        $stmt->bindValue(':filtroNome', '%'.$usuarioFiltro->getNome().'%');
+                    }
+
+                    if (str_contains($SQL, ":filtroEmail")) {
+                        $stmt->bindValue(':filtroEmail', $usuarioFiltro->getEmail().'%');
+                    }
+        
+                    if (str_contains($SQL, ":filtroCPF")) {
+                        $stmt->bindValue(':filtroCPF', $usuarioFiltro->getCpf());
+                    }
+
+                    if (str_contains($SQL, ":filtroAtivo")) {
+                        $stmt->bindValue(':filtroAtivo', $usuarioFiltro->getAtivo());
+                    }
 
                     if ($stmt->execute()) {
                         $totalRegistros = $stmt->rowCount();
