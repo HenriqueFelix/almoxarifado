@@ -10,30 +10,8 @@
     margin-top: 10px;
 }
 
-/*
-ul,
-li {
-    list-style: none;
+@media only screen and (max-device-width: 480px) {
+    table {
+        font-size: 22px;
+    }
 }
-
-#wrapper {
-    width: 900px;
-    margin: 20px auto;
-}
-
-.data-container {
-    margin-top: 20px;
-}
-
-.data-container ul {
-    padding: 0;
-    margin: 0;
-}
-
-.data-container li {
-    margin-bottom: 5px;
-    padding: 5px 10px;
-    background: #eee;
-    color: #666;
-}
-*/

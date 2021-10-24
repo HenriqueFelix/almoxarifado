@@ -8,21 +8,51 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="../assets/css/select2.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <link rel="stylesheet" href="../assets/css/loading.css" />
     <link rel="stylesheet" href="../assets/css/search-input.css" />
     <link rel="stylesheet" href="../assets/css/pagination.css" />
     <link rel="stylesheet" href="../assets/css/table.css" />
     <link rel="stylesheet" href="../assets/css/loading-skeleton.css" />
+    <link rel="stylesheet" href="../assets/css/outline-input.css">
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/select2.min.js"></script>
+    <script src="../assets/js/select2-dropdownPosition.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
     <script src="../assets/js/menu-script.js"></script>
     <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/outline-input.js"></script>
 
     <script type="text/javascript">
         $(function () {
+            $(".select2").select2({
+                dropdownPosition: 'below'
+            });
+
+            initSelect2Outline("filtro-perfil", 1);
+            initSelect2Outline("filtro-ativo", 0);
+
+            //$('#tabela-usuarios-modal-filter').modal({backdrop: 'static', keyboard: false})
+
+            $("#tabela-usuarios-modal-filter").on("shown.bs.modal", function () {
+                $("#filtro-perfil").select2({
+                    dropdownPosition: 'below',
+                    dropdownParent: "#tabela-usuarios-modal-filter"
+                });
+
+                $("#filtro-ativo").select2({
+                    dropdownPosition: 'below',
+                    dropdownParent: "#tabela-usuarios-modal-filter"
+                });
+
+                initSelect2Outline("filtro-perfil", 1);
+                initSelect2Outline("filtro-ativo", 0);
+                
+            });
+
             var promiseValidacaoUsuario = new Promise((resolve, reject) => {
                 try {
                     validarPerfil("usuario/consultar.html", "load-div", "menu-div", resolve);
@@ -33,8 +63,56 @@
 
             promiseValidacaoUsuario.then(resposta => {
                 try {
-                    if (resposta != null && resposta != undefined && parseInt(resposta) == 1) {
-                        consultarUsuarios("tabela-usuarios");
+                    if (verificarObjeto(resposta) && parseInt(resposta) == 1) {
+                        var usuariosTable = new PaginationTable({
+                            sectionId: "tabela-usuarios",
+                            column: [
+                                {
+                                    description: "Nome",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "E-mail",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "Pefil",
+                                    type: 1,
+                                    class: "vertical-center-td",
+                                },
+                                {
+                                    description: "Ações",
+                                    type: 2,
+                                    class: "vertical-center-td all-right",
+                                    skeletonIcon: 2,
+                                    skeletonClass: "right",
+                                }
+                            ],
+                            skeletonProgress: {
+                                row: 15
+                            },
+                            url: "../src/api/usuario.php?metodo=ConsultarUsuarios",
+                            maxItem: 2,
+                            callback: function (tableId, data, pagination, filter){
+                                var htmlRow = '';
+
+                                $.each(data, function (index, item) {
+                                    htmlRow += '<tr>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.nome + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.email + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td">' + item.perfil.descricao + '</td>';
+                                    htmlRow += '   <td class="vertical-center-td all-right">';
+                                    htmlRow += '       <a><i class="bx bxs-pencil"></i></a>';
+                                    htmlRow += '       <a><i class="bx bxs-trash-alt"></i></a>';
+                                    htmlRow += '   </td>';
+                                    htmlRow += '</tr>';
+                                });
+
+                                return htmlRow;
+                            }
+                        });
                     }
                 } catch (e) {
                     console.error(e);
@@ -43,106 +121,6 @@
                 console.error(erro);
             });
         });
-
-        function consultarUsuarios(idTabela) {
-            var itemPorPagina = 15;
-            var dataContainer = $("#" + idTabela);
-            var inputPesquisa = $("#" + idTabela + "-pesquisa");
-
-            try {
-                dataContainer.pagination({
-                    alias: {
-                        pageNumber: 'page',
-                        pageSize: 'maximum',
-                        queryParam: 'query'
-                    },
-                    inputQuery: inputPesquisa,
-                    dataSource: '../src/api/usuario.php?metodo=ConsultarUsuarios',
-                    locator: 'data',
-                    pageSize: itemPorPagina,
-                    ajax: {
-                        beforeSend: function () {
-                            //dataContainer.html("");
-
-                            $("#tabela-usuarios-skeleton").show();
-                            $("#tabela-usuarios-container").hide();
-
-                            if (inputPesquisa != null && inputPesquisa != undefined) {
-                                inputPesquisa.prop('disabled', true);
-                            }
-                        }
-                    },
-                    showPrevious: false,
-                    showNext: false,
-                    totalNumberLocator: function (response) {
-                        var totalNumber = 0;
-
-                        if (response != null && response != undefined) {
-                            if (parseInt(response.valido) == 1) {
-                                totalNumber = response.total;
-                            }
-                        }
-
-                        return totalNumber;
-                    },
-                    callback: function (data, pagination) {
-                        if (data == null || data == undefined) {
-                            $("#tabela-usuarios-skeleton").hide();
-                            return;
-                        } else if (data.valido != null && data.valido != undefined && parseInt(data.valido) == 0) {
-                            $("#tabela-usuarios-skeleton").hide();
-                            alert(data.mensagem);
-                            return;
-                        }
-
-                        try {
-                            var dataHtml = '';
-                            dataHtml += '<table class="table">';
-                            dataHtml += '    <caption id="' + idTabela + '-caption">Total de registro(s): ' + pagination.totalNumber + '</caption>';
-                            dataHtml += '    <thead>';
-                            dataHtml += '        <tr>';
-                            dataHtml += '            <th scope="col">Nome</th>';
-                            dataHtml += '            <th scope="col">E-mail</th>';
-                            dataHtml += '            <th scope="col">Perfil</th>';
-                            dataHtml += '            <th scope="col" class="all-right">Ações</th>';
-                            dataHtml += '        </tr>';
-                            dataHtml += '    </thead>';
-                            dataHtml += '    <tbody>';
-
-                            $.each(data, function (index, item) {
-                                dataHtml += '<tr>';
-                                dataHtml += '   <td class="vertical-center-td">' + item.nome + '</td>';
-                                dataHtml += '   <td class="vertical-center-td">' + item.email + '</td>';
-                                dataHtml += '   <td class="vertical-center-td">' + item.perfil.descricao + '</td>';
-                                dataHtml += '   <td class="vertical-center-td all-right">';
-                                dataHtml += '       <a><i class="bx bxs-pencil"></i></a>';
-                                dataHtml += '       <a><i class="bx bxs-trash-alt"></i></a>';
-                                dataHtml += '   </td>';
-                                dataHtml += '</tr>';
-                            });
-
-                            dataHtml += '    </tbody>';
-                            dataHtml += '</table>';
-
-                            dataContainer.prev().html(dataHtml);
-                        } catch (error) {
-                            console.error(error);
-                        }
-
-                        $("#tabela-usuarios-skeleton").hide();
-
-                        if (inputPesquisa != null && inputPesquisa != undefined) {
-                            inputPesquisa.prop('disabled', false);
-                            inputPesquisa.focus();
-                        }
-                        
-                        $("#tabela-usuarios-container").show();
-                    }
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
     </script>
 </head>
 
@@ -152,7 +130,7 @@
             <i class='bx bx-menu' id="header-toggle"></i>
         </div>
         <div class="header_img">
-            <img src="https://i.imgur.com/hczKIze.jpg" alt="">
+            <img id="profileImage" src="../assets/img/profile-default.jpg" alt="">
         </div>
     </header>
 
@@ -167,7 +145,7 @@
                 <div id="menu-div" class="nav_list"></div>
             </div>
 
-            <a onclick="logoutSistema()" class="nav_link">
+            <a onclick="logoutSistema('load-div')" class="nav_link">
                 <i class='bx bx-log-out nav_icon'></i>
                 <span class="nav_name">Sair</span>
             </a>
@@ -186,7 +164,7 @@
                 <div class="input-group input-group-search">
                     <input id="tabela-usuarios-pesquisa" type="text" class="form-control input-search" placeholder="Digite o que você quer encontrar." autocomplete="off" disabled />
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button">
+                        <button type="button" id="tabela-usuarios-pesquisa-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tabela-usuarios-modal-filter">
                             <i class="bx bx-search"></i>
                         </button>
                     </div>
@@ -205,56 +183,76 @@
 
         <div class="row top15">
             <div class="col-md-12">
-                <section>
-                    <div id="tabela-usuarios-skeleton" class="skeleton-area">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">E-mail</th>
-                                    <th scope="col">Perfil</th>
-                                    <th scope="col" class="all-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="all-right">
-                                        <div class="text-line skeleton-icon-table"></div>
-                                        <div class="text-line skeleton-icon-table"></div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="vertical-center-td">
-                                        <div class="text-line skeleton-text-table"></div>
-                                    </td>
-                                    <td class="all-right">
-                                        <div class="text-line skeleton-icon-table"></div>
-                                        <div class="text-line skeleton-icon-table"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="tabela-usuarios-container" class="data-container"></div>
-                    <div id="tabela-usuarios" class="pagination-right"></div>
-                </section>
+                <section id="tabela-usuarios"></section>
             </div>
         </div>
+
+        <!-- MODAL FILTROS { -->
+        <div class="modal fade hide modal-custom" id="tabela-usuarios-modal-filter" tabindex="-1" aria-labelledby="tabela-usuarios-modal-filterTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tabela-usuarios-modal-filterTitle">Filtrar usuário(s)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="input-container">
+                                    <input id="filtro-nome" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="nome" />
+                                    <label class="label" for="filtro-nome">Nome</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="input-container">
+                                    <input id="filtro-cpf" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="cpf" />
+                                    <label class="label" for="filtro-cpf">CPF</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row top25">
+                            <div class="col-md-7">
+                                <div class="input-container">
+                                    <input id="filtro-email" type="text" class="table-filter input" pattern=".+" required="false" data-table="tabela-usuarios" data-filter="email" />
+                                    <label class="label" for="filtro-email">E-mail</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="input-container select">
+                                    <select id="filtro-perfil" class="table-filter select2 multiple w100" multiple="multiple" required="false" data-table="tabela-usuarios" data-filter="perfil" data-type="select-multiple" data-default="">
+                                        <option value="AL">Alabama</option>
+                                        <option value="WY">Wyoming</option>
+                                        <option value="PE">Pernambuco</option>
+                                        <option value="PB">Rio de Janeiro</option>
+                                        <option value="PB">Rio Grande do Norte</option>
+                                        <option value="PB">Curitiba</option>
+                                    </select>
+                                    <label class="label" for="filtro-perfil">Perfil</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row top25">
+                            <div class="col-md-5">
+                                <div class="input-container select">
+                                    <select id="filtro-ativo" class="table-filter select2 w100" required="false" data-table="tabela-usuarios" data-filter="ativo" data-type="select" data-default="1">
+                                        <option value="1">Ativo</option>
+                                        <option value="0">Inativo</option>
+                                    </select>
+                                    <label class="label" for="filtro-ativo">Status</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="tabela-usuarios-filter-button" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- MODAL FILTROS } -->
     </div>
 
     <div id="load-div" class="progress-area">

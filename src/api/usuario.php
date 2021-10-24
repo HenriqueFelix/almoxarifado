@@ -9,8 +9,9 @@
 
     require_once '../../vendor/autoload.php';
     require_once '../config/conection.php';
+    require_once '../config/funcoes.php';
 	
-    //use Vendor\Almoxarifado\model\Usuario;
+    use Vendor\Almoxarifado\model\Usuario;
     use Vendor\Almoxarifado\controller\UsuarioController;
 
     if ($_GET == null || !isset($_GET["metodo"])) {
@@ -65,7 +66,7 @@
             echo json_encode($arrRetorno);
             die();
         } catch (\Exception $e) {
-            http_response_code(200); // 404
+            http_response_code(200);
 
             DBClose($ConexaoMy);
             session_destroy();
@@ -75,6 +76,18 @@
         }
     }
 
+    if ($_GET["metodo"] == "LogoutSistema") {
+        $_SESSION = null;
+        session_destroy();
+
+        $arrRetorno = array();
+        $arrRetorno['valido']   = 1;
+        $arrRetorno['mensagem'] = "Deslogado do sistema.";
+
+        echo json_encode($arrRetorno);
+        die();
+    }
+    
     if ($_GET["metodo"] == "ValidarPerfil") {
         $ConexaoMy = DBConnectMy();
 
@@ -110,6 +123,7 @@
             }
 
             if ((int)$valido != 1) {
+                $_SESSION = null;
                 session_destroy();
             } else if ($_SESSION['usuario']['perfil'] != null) {
                 $validaTela = 0;
@@ -127,6 +141,11 @@
                 }
             }
 
+            if ((int)$valido != 1) {
+                $_SESSION = null;
+                session_destroy();
+            }
+
             $arrRetorno = array();
             $arrRetorno['valido']   = (int)$valido;
             $arrRetorno['mensagem'] = $msg;
@@ -139,8 +158,10 @@
         } catch (\Exception $e) {
             http_response_code(200); // 404
 
-            DBClose($ConexaoMy);
+            $_SESSION = null;
             session_destroy();
+
+            DBClose($ConexaoMy);
 
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
@@ -168,9 +189,42 @@
 
             DBClose($ConexaoMy);
 
+            $_SESSION = null;
+            session_destroy();
+
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
         }
+    }
+
+    if ($_GET["metodo"] == "ValidarSessao") {
+        $valido = 1;
+        $msg = "Sessão valida.";
+
+        $tela_atual = trim((string)$_GET["tela"]);
+
+        if ($_SESSION == null || count($_SESSION) <= 0) {
+            $valido = 0;
+            $msg = "Sessão inválida!";
+        } else if ($_SESSION['token_sessao'] == null || trim((string)$_SESSION['token_sessao']) == "") {
+            $valido = 0;
+            $msg = "Token da sessão é inválido!";
+        } else if ($tela_atual == null || $tela_atual == "") {
+            $valido = 0;
+            $msg = "Tela inválida!";
+        } else if ($_SESSION['usuario'] == null || count($_SESSION['usuario']) <= 0 || (int)$_SESSION['usuario']['codigo'] <= 0) {
+            $valido = 0;
+            $msg = "Usuário não identificado na sessão!";
+        }
+
+        $arrRetorno = array();
+        $arrRetorno['valido']   = (int)$valido;
+        $arrRetorno['mensagem'] = $msg;
+
+        sleep(1);
+
+        echo json_encode($arrRetorno);
+        die();
     }
 
     if ($_GET["metodo"] == "ConsultarUsuarios") {
@@ -182,11 +236,48 @@
             $valido = 1;
             $msg = "Listagem realizada com sucesso.";
 
-            $query = trim((string)$_GET['query']);
+            $query = "";
+            $queryNome = "";
+            $queryEmail = "";
+            $queryCPF = "";
+            $queryPerfil = 0;
+            $queryAtivo = 1;
+
+            if (isset($_GET['query'])) {
+                $query = trim((string)$_GET['query']);
+            }
+
+            if (isset($_GET['nome'])) {
+                $queryNome = trim((string)$_GET['nome']);
+            }
+
+            if (isset($_GET['email'])) {
+                $queryEmail = trim((string)$_GET['email']);
+            }
+
+            if (isset($_GET['cpf'])) {
+                $queryCPF = trim((string)$_GET['cpf']);
+            }
+
+            if (isset($_GET['perfil'])) {
+                $queryPerfil = (int)$_GET['perfil'];
+            }
+
+            if (isset($_GET['ativo'])) {
+                $queryAtivo = (int)$_GET['ativo'];
+            }
+
             $page = (int)$_GET['page'];
             $max = (int)$_GET['maximum'];
 
-            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, $page, $max);
+            $usuarioFiltro = new Usuario();
+            $usuarioFiltro->setCodigo(0);
+            $usuarioFiltro->setNome($queryNome);
+            $usuarioFiltro->setEmail($queryEmail);
+            $usuarioFiltro->setCpf($queryCPF);
+            $usuarioFiltro->setAtivo($queryAtivo);
+
+            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, $usuarioFiltro, $page, $max);
             if ($usuarios == null) {
                 $valido = 0;
                 $msg    = "Erro ao consultar usuário(s).";
@@ -194,12 +285,15 @@
                 $arrRetorno['total']    = $usuarios['amount'];
                 $arrRetorno['filtered'] = count($usuarios['object']);
                 $arrRetorno['data']     = $usuarios['object'];
+                $arrRetorno['query']    = getFilterPagination($_GET);
             }
 
             $arrRetorno['valido']   = (int)$valido;
             $arrRetorno['mensagem'] = $msg;
 
             DBClose($ConexaoMy);
+
+            sleep(3);
 
             echo json_encode($arrRetorno);
             die();
@@ -211,6 +305,10 @@
 			echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
             die();
         }
+    }
+
+    if ($_POST["metodo"] == "CadastrarUsuario") {
+        
     }
 
     $arrRetorno = array();

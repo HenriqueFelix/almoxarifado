@@ -7,25 +7,39 @@
         public function login($ConexaoMy, $login, $senha) {
             $usuario = array();
 
-            $SQL = "SELECT * 
-                    FROM usuario 
-                    WHERE email = '".$login."' 
-                        AND senha = '".$senha."' 
-                        AND ativo = 1 
+            $SQL = "SELECT u.* 
+                    FROM usuario u 
+                    WHERE (
+                            u.email = :login 
+                            OR (
+                                u.cpf IS NOT NULL 
+                                AND u.cpf != '' 
+                                AND u.cpf = :login 
+                            )
+                        ) 
+                        AND u.senha = :senha 
+                        AND u.ativo = '1' 
                     LIMIT 1; ";
-			
-            $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-            if ($query) {
-                if (mysqli_num_rows($query) > 0) {
-                    while($Aux = mysqli_fetch_array($query)) {
-                        //$Aux = array_map("utf8_encode", $Aux);
-		                //$Aux = array_map("strtoupper", $Aux);
 
-                        $usuario['codigo'] = (int)$Aux['codigo'];
-                        $usuario['nome'] = trim((string)$Aux['nome']);
-                        $usuario['email'] = trim((string)$Aux['email']);
-                        $usuario['perfil']['codigo'] = (int)$Aux['perfil'];
-                        $usuario['perfil']['telas'] = UsuarioController::verificarPerfil($ConexaoMy, $usuario, 1);
+            $stmt = $ConexaoMy->prepare($SQL);
+            $stmt->bindValue(':login', $login);
+            $stmt->bindValue(':senha', $senha);
+
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    $Aux = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                    $usuario['codigo'] = (int)$Aux['codigo'];
+                    $usuario['nome'] = trim((string)$Aux['nome']);
+                    $usuario['email'] = trim((string)$Aux['email']);
+                    $usuario['cpf'] = trim((string)$Aux['cpf']);
+                    $usuario['foto'] = "";
+                    $usuario['perfil']['codigo'] = (int)$Aux['perfil'];
+                    $usuario['perfil']['descricao'] = "zzz ".$Aux['perfil'];
+                    $usuario['perfil']['telas'] = $this->verificarPerfil($ConexaoMy, $usuario, 1);
+
+                    if (file_exists("../../upload/usuario/perfil/".$usuario['codigo'].".jpg")) {
+                        $usuario['foto'] = "../upload/usuario/perfil/".$usuario['codigo'].".jpg";
                     }
                 } else {
                     throw new \Exception("Login ou senha inválido(s).");
@@ -33,7 +47,7 @@
             } else {
                 throw new \Exception("Ops! Falha ao realizar login.");
             }
-            
+
             return $usuario;
 		}
 
@@ -48,28 +62,34 @@
                 throw new \Exception("Ops! Perfil não identificado.");
             } else {
                 $SQL = "SELECT * 
-                        FROM perfil 
-                        WHERE codigo = '".$codigoPerfil."' 
-                            AND ativo = 1; ";
-                
-                $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-                if ($query) {
-                    if (mysqli_num_rows($query) > 0) {
+                FROM perfil 
+                WHERE codigo = :codPerfil 
+                    AND ativo = '1'; ";
+
+                $stmt = $ConexaoMy->prepare($SQL);
+                $stmt->bindValue(':codPerfil', $codigoPerfil);
+
+                if ($stmt->execute()) {
+                    if ($stmt->rowCount() > 0) {
                         $SQL = "SELECT t.* 
                                 FROM perfil_telas pt
                                     LEFT JOIN sistema_telas t ON t.codigo = pt.tela 
-                                WHERE pt.perfil = '".$codigoPerfil."' 
+                                WHERE pt.perfil = :codPerfil 
                                     AND t.menu > 0 
                                     AND t.ativo = '1' 
                                 ORDER BY t.ordem ASC; ";
+                        
+                        $stmt = $ConexaoMy->prepare($SQL);
+                        $stmt->bindValue(':codPerfil', $codigoPerfil);
 
-                        $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-                        if ($query) {
-                            if (mysqli_num_rows($query) > 0) {
+                        if ($stmt->execute()) {
+                            if ($stmt->rowCount() > 0) {
                                 $codigosMenus = "";
-                                $t = 0;
 
-                                while ($Aux = mysqli_fetch_array($query)) {
+                                $resultQuery = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                                for ($t=0; $t < count($resultQuery); $t++) {
+                                    $Aux = $resultQuery[$t];
+
                                     $perfilTelas[$t]['codigo']    = (int)$Aux['codigo'];
                                     $perfilTelas[$t]['menu']      = (int)$Aux['menu'];
                                     $perfilTelas[$t]['titulo']    = trim($Aux['titulo']);
@@ -77,10 +97,8 @@
                                     $perfilTelas[$t]['diretorio'] = trim($Aux['dir']);
 
                                     $codigosMenus .= (int)$Aux['menu'].",";
-
-                                    $t++;
                                 }
-
+                                
                                 if ($codigosMenus != "") {
                                     $codigosMenus = substr($codigosMenus, 0, -1);
                                 }
@@ -91,21 +109,25 @@
                                             AND m.ativo = '1' 
                                         ORDER BY m.ordem ASC; ";
                                 
-                                $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-                                if ($query) {
-                                    if (mysqli_num_rows($query) > 0) {
-                                        $t = 0;
+                                $stmt = $ConexaoMy->prepare($SQL);
 
-                                        while ($Aux = mysqli_fetch_array($query)) {
+                                if ($stmt->execute()) {
+                                    if ($stmt->rowCount() > 0) {
+                                        $resultQuery = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                                        for ($t=0; $t < count($resultQuery); $t++) { 
+                                            $Aux = $resultQuery[$t];
+
                                             $menu[$t]['codigo']    = (int)$Aux['codigo'];
                                             $menu[$t]['titulo']    = trim($Aux['titulo']);
                                             $menu[$t]['icone']     = trim($Aux['icone']);
                                             $menu[$t]['sub_menu']  = (int)$Aux['sub_menu'];
                                             $menu[$t]['telas']     = array();
-
-                                            $t++;
                                         }
+                                    } else {
+                                        throw new \Exception("Ops! Menu de telas inexistente para seu perfil.");
                                     }
+                                } else {
+                                    throw new \Exception("Ops! Erro ao validar menu de telas do seu perfil.");
                                 }
 
                                 foreach ($menu as $keyMenu => $valueMenu) {
@@ -119,10 +141,10 @@
                                 $telas['menu'] = $menu;
                                 $telas['tela'] = $perfilTelas;
                             } else {
-                                throw new \Exception("Ops! Telas não disponível para o perfil do usuário.");
+                                throw new \Exception("Ops! Telas não disponível para seu perfil.");
                             }
                         } else {
-                            throw new \Exception("Ops! Erro ao verificar telas do perfil.");
+                            throw new \Exception("Ops! Erro ao verificar telas do seu perfil.");
                         }
                     } else {
                         throw new \Exception("Ops! Perfil do usuário não foi identificado.");
@@ -135,7 +157,7 @@
             return $telas;
         }
 
-        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, $pagina, $itemsPorPagina) {
+        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, ?Usuario $usuarioFiltro, $pagina, $itemsPorPagina) {
             $arrRetorno = array();
 
             $filtroSQL = "";
@@ -148,49 +170,107 @@
                 $itemsPorPagina = 15;
             }
 
-            if ($query != null && trim($query) != "") {
+            if ($query != null) {
+                $query = trim($query);
+            } else {
+                $query = "";
+            }
+
+            if ($query != "") {
                 $filtroSQL = " AND (
-                                    u.nome LIKE '%".$query."%' 
+                                    u.nome LIKE :queryNome 
                                     OR 
-                                    u.cpf LIKE '%".$query."%' 
+                                    u.cpf LIKE :queryCPF 
                                     OR 
-                                    u.email LIKE '%".$query."%' 
+                                    u.email LIKE :queryEmail 
                                 ) ";
+            }
+
+            if ($usuarioFiltro != null) {
+                if ($usuarioFiltro->getCodigo() > 0) {
+                    $filtroSQL .= " AND u.codigo = :filtroCodigo ";
+                }
+
+                if (checkValue($usuarioFiltro->getNome())) {
+                    $filtroSQL .= " AND u.nome LIKE :filtroNome ";
+                }
+
+                if (checkValue($usuarioFiltro->getEmail())) {
+                    $filtroSQL .= " AND u.email LIKE :filtroEmail ";
+                }
+
+                if (checkValue($usuarioFiltro->getCpf())) {
+                    $filtroSQL .= " AND u.cpf = :filtroCPF ";
+                }
+
+                if (checkValue($usuarioFiltro->getAtivo())) {
+                    $filtroSQL .= " AND u.ativo = :filtroAtivo ";
+                }
+            } else {
+                $usuarioFiltro = new Usuario();
             }
 
             $offset = ((int)$pagina - 1) * (int)$itemsPorPagina;
 
             $SQL = "SELECT u.codigo, 
                         u.nome, 
-                        u.email,
-                        u.perfil,
+                        u.email, 
+                        u.perfil, 
                         p.descricao AS perfil_descricao 
                     FROM usuario u 
                         LEFT JOIN perfil p ON p.codigo = u.perfil 
-                    WHERE 1=1
-                        AND u.ativo = 1 
+                    WHERE 1 = 1 
                         ".$filtroSQL." 
                     ORDER BY u.nome ASC 
-                    LIMIT ".$offset.", ".(int)$itemsPorPagina."; ";
+                    LIMIT ".(int)$offset.", ".(int)$itemsPorPagina."; ";
 			
-            //echo "<pre>"; var_dump($SQL); die();
-            $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-            if ($query) {
-                if (mysqli_num_rows($query) > 0) {
-                    $usuarios = array();
-                    $i = 0;
+            $stmt = $ConexaoMy->prepare($SQL);
 
-                    while($Aux = mysqli_fetch_array($query)) {
-                        //$Aux = array_map("utf8_encode", $Aux);
-		                //$Aux = array_map("strtoupper", $Aux);
+            if (str_contains($SQL, ":queryNome")) {
+                $stmt->bindValue(':queryNome', '%'.$query.'%');
+            }
+
+            if (str_contains($SQL, ":queryCPF")) {
+                $stmt->bindValue(':queryCPF', $query.'%');
+            }
+
+            if (str_contains($SQL, ":queryEmail")) {
+                $stmt->bindValue(':queryEmail', $query.'%');
+            }
+
+            if (str_contains($SQL, ":filtroCodigo")) {
+                $stmt->bindValue(':filtroCodigo', $usuarioFiltro->getCodigo());
+            }
+            
+            if (str_contains($SQL, ":filtroNome")) {
+                $stmt->bindValue(':filtroNome', '%'.$usuarioFiltro->getNome().'%');
+            }
+            
+            if (str_contains($SQL, ":filtroEmail")) {
+                $stmt->bindValue(':filtroEmail', $usuarioFiltro->getEmail().'%');
+            }
+
+            if (str_contains($SQL, ":filtroCPF")) {
+                $stmt->bindValue(':filtroCPF', $usuarioFiltro->getCpf());
+            }
+
+            if (str_contains($SQL, ":filtroAtivo")) {
+                $stmt->bindValue(':filtroAtivo', $usuarioFiltro->getAtivo());
+            }
+
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    $usuarios = array();
+
+                    $resultQuery = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    for ($i=0; $i < count($resultQuery); $i++) {
+                        $Aux = $resultQuery[$i];
 
                         $usuarios[$i]['codigo']                 = (int)$Aux['codigo'];
                         $usuarios[$i]['nome']                   = trim((string)$Aux['nome']);
                         $usuarios[$i]['email']                  = trim((string)$Aux['email']);
                         $usuarios[$i]['perfil']['codigo']       = (int)$Aux['perfil'];
                         $usuarios[$i]['perfil']['descricao']    = trim((string)$Aux['perfil_descricao']);
-
-                        $i++;
                     }
 
                     //QUANTIDADE TOTAL
@@ -198,12 +278,45 @@
 
                     $SQL = "SELECT u.codigo 
                             FROM usuario u 
-                            WHERE 1=1
-                                AND u.ativo = 1 
+                            WHERE 1 = 1 
                                 ".$filtroSQL."; ";
-                    $query = mysqli_query($ConexaoMy, utf8_decode($SQL));
-                    if ($query) {
-                        $totalRegistros = mysqli_num_rows($query);
+
+                    $stmt = $ConexaoMy->prepare($SQL);
+
+                    if (str_contains($SQL, ":queryNome")) {
+                        $stmt->bindValue(':queryNome', '%'.$query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":queryCPF")) {
+                        $stmt->bindValue(':queryCPF', $query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":queryEmail")) {
+                        $stmt->bindValue(':queryEmail', $query.'%');
+                    }
+        
+                    if (str_contains($SQL, ":filtroCodigo")) {
+                        $stmt->bindValue(':filtroCodigo', $usuarioFiltro->getCodigo());
+                    }
+                    
+                    if (str_contains($SQL, ":filtroNome")) {
+                        $stmt->bindValue(':filtroNome', '%'.$usuarioFiltro->getNome().'%');
+                    }
+
+                    if (str_contains($SQL, ":filtroEmail")) {
+                        $stmt->bindValue(':filtroEmail', $usuarioFiltro->getEmail().'%');
+                    }
+        
+                    if (str_contains($SQL, ":filtroCPF")) {
+                        $stmt->bindValue(':filtroCPF', $usuarioFiltro->getCpf());
+                    }
+
+                    if (str_contains($SQL, ":filtroAtivo")) {
+                        $stmt->bindValue(':filtroAtivo', $usuarioFiltro->getAtivo());
+                    }
+
+                    if ($stmt->execute()) {
+                        $totalRegistros = $stmt->rowCount();
                     }
 
                     $arrRetorno['object'] = $usuarios;

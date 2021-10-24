@@ -17,7 +17,7 @@
 
     <script type="text/javascript">
         $(function () {
-            //validarPerfil("index.html", "load-div", null);
+            verificarSessao("index.html", "load-div");
         });
 
         function acessarSistema() {
@@ -57,18 +57,19 @@
                             alert(ret.mensagem);
                         }
                     } catch (e) {
+                        console.error(e);
+                        
                         $("#load-div").hide();
                         alert("Ops! Não foi possível realizar a ação.");
-                        console.error(e);
                     }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
-                    $("#load-div").hide();
-                    alert("Ops! Não foi possível completar a requisição.");
-
                     //console.log(xhr.status);
                     console.error(xhr.responseText);
                     console.error(thrownError);
+
+                    $("#load-div").hide();
+                    alert("Ops! Não foi possível completar a requisição.");
                 }
             });
         }

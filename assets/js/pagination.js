@@ -64,7 +64,22 @@
 
                 if (attributes.inputQuery != null && attributes.inputQuery != undefined) {
                     attributes.inputQuery.keyup(function () {
-                        self.refreshToInputQuery();
+                        var valueQuery = this.value;
+                        var regex = /^[A-Za-z0-9]+$/
+                        var isValid = regex.test(valueQuery);
+                        if (valueQuery.length == 0 || isValid) {
+                            self.refreshToQuery();
+                        }
+                    });
+                }
+
+                if (attributes.buttonFilter != null && attributes.buttonFilter != undefined) {
+                    $(attributes.buttonFilter).click(function() {
+                        if (attributes.modalFilter != null && attributes.modalFilter != undefined) {
+                            $(attributes.modalFilter).modal('toggle');
+                        }
+
+                        self.refreshToQuery();
                     });
                 }
 
@@ -398,6 +413,54 @@
                 postData[alias.pageNumber ? alias.pageNumber : 'pageNumber'] = pageNumber;
                 postData[alias.queryParam ? alias.queryParam : 'queryParam'] = queryParam;
 
+                var filterElements = [];
+
+                try {
+                    $(".table-filter").each(function() {    
+                        try {
+                            var tableIdInput = $(this).data('table');
+                            var filterInput = $(this).data('filter');
+    
+                            if (tableIdInput != null && tableIdInput != undefined && filterInput != null && filterInput != undefined) {
+                                if (attributes.sectionId == tableIdInput) {
+                                    var objFilter = {
+                                        tag: filterInput,
+                                        element: $(this)
+                                    }
+    
+                                    filterElements.push(objFilter);
+                                }
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    });
+                } catch (error) {
+                    console.error(error);
+
+                    filterElements = null;
+                }
+
+                //console.log(filterElements);
+
+                if (filterElements != null && filterElements != undefined && filterElements.length > 0) {
+                    for (let p = 0; p < filterElements.length; p++) {
+                        try {
+                            const elementFilter = filterElements[p];
+                            if (elementFilter != null && elementFilter != undefined) {
+                                var queryTag = elementFilter.tag;
+                                var queryInput = $(elementFilter.element).val();
+
+                                if (queryTag != null && queryTag != undefined && queryTag != "" && queryInput != null && queryInput != undefined) {
+                                    postData[alias.queryTag ? alias.queryTag : queryTag] = queryInput;  
+                                }
+                            }
+                        } catch (error) {
+                            console.error(error);
+                        } 
+                    }
+                }
+
                 var ajaxParams = $.isFunction(attributes.ajax) ? attributes.ajax() : attributes.ajax;
                 var formatAjaxParams = {
                     type: 'get',
@@ -421,10 +484,10 @@
 
                     try {
                         var finalData = self.filterDataByLocator(response);
-                        render(finalData);
+                        render(finalData, response.query);
                     } catch (error) {
                         console.error(error);
-                        render(response);
+                        render(response, null);
                     }
                 };
                 formatAjaxParams.error = function (jqXHR, textStatus, errorThrown) {
@@ -436,7 +499,9 @@
 
                 $.ajax(formatAjaxParams);
 
-                function render(data) {
+                function render(data, responseQuery) {
+                    //console.log(data);
+
                     // Will be invoked before paging
                     if (self.callHook('beforePaging', pageNumber) === false) return false;
 
@@ -466,7 +531,7 @@
                     container.data('pagination').currentPageData = data;
 
                     // invoke callback
-                    self.doCallback(data, callback);
+                    self.doCallback(data, callback, responseQuery);
 
                     self.callHook('afterPaging', pageNumber);
 
@@ -482,14 +547,14 @@
                 }
             },
 
-            doCallback: function (data, customCallback) {
+            doCallback: function (data, customCallback, dataFilter) {
                 var self = this;
                 var model = self.model;
 
                 if ($.isFunction(customCallback)) {
-                    customCallback(data, model);
+                    customCallback(data, model, dataFilter);
                 } else if ($.isFunction(attributes.callback)) {
-                    attributes.callback(data, model);
+                    attributes.callback(data, model, dataFilter);
                 }
             },
 
@@ -544,11 +609,10 @@
             },
 
             refresh: function (callback) {
-                console.log(this.model.pageNumber);
                 this.go(this.model.pageNumber, callback);
             },
 
-            refreshToInputQuery: function (callback) {
+            refreshToQuery: function (callback) {
                 this.go(1, callback);
             },
 
@@ -1144,3 +1208,315 @@
     }
 
 })(this, window.jQuery);
+
+function buildTable(idSection, columnTable, skeletonTable) {
+    var section = $("#" + idSection);
+
+    var htmlSkeleton = '';
+
+    if (skeletonTable != null && skeletonTable != undefined) {
+        htmlSkeleton += '<div id="'+idSection+'-skeleton" class="skeleton-area">';
+        htmlSkeleton +=     '<table class="table">';
+        htmlSkeleton +=         '<thead>';
+        htmlSkeleton +=             '<tr>';
+
+        for (let i = 0; i < columnTable.length; i++) {
+            const column = columnTable[i];
+            var columnClass = "";
+
+            if (column.class != null && column.class != undefined) {
+                columnClass = column.class;
+            }
+
+            htmlSkeleton +=             '<th scope="col" class="'+columnClass+'">'+column.description+'</th>';
+        }
+
+        htmlSkeleton +=             '</tr>';
+        htmlSkeleton +=         '</thead>';
+
+        htmlSkeleton +=         '<tbody>';
+
+        for (let i = 0; i < skeletonTable.row; i++) {
+            htmlSkeleton +=         '<tr>';
+            
+            for (let i = 0; i < columnTable.length; i++) {
+                const column = columnTable[i];
+                var columnClass = "";
+                var skeletonClass = "";
+                var skeletonIcon = 0;
+
+                if (column.class != null && column.class != undefined) {
+                    columnClass = column.class;
+                }
+                
+                if (parseInt(column.type) == 2 && column.skeletonIcon != null && column.skeletonIcon != undefined) {
+                    skeletonIcon = column.skeletonIcon;
+                }
+
+                if (column.skeletonClass != null && column.skeletonClass != undefined) {
+                    skeletonClass = column.skeletonClass;
+                }
+
+                if (parseInt(column.type) == 2 && skeletonIcon > 0) {
+                    htmlSkeleton +=         '<td class="'+columnClass+'">';
+                    
+                        for (let c = 0; c < skeletonIcon; c++) {
+                            htmlSkeleton +=     '<div class="text-line skeleton-icon-table '+skeletonClass+'"></div>';
+                        }
+
+                    htmlSkeleton +=         '</td>';
+                } else {
+                    htmlSkeleton +=         '<td class="'+columnClass+'"><div class="text-line skeleton-text-table '+skeletonClass+'"></div></td>';
+                }
+            }
+
+            htmlSkeleton +=         '</tr>';
+        }
+
+        htmlSkeleton +=         '</tbody>';
+        htmlSkeleton +=     '</table>';
+        htmlSkeleton += '</div>';
+    }
+
+    var htmlTable = '';
+    htmlTable += '<div id="'+idSection+'-container" class="data-container"></div>';
+    htmlTable += '<div id="'+idSection+'-pagination" class="pagination-right"></div>';
+
+    if (htmlSkeleton != null && htmlSkeleton != undefined && htmlSkeleton.trim() != "") {
+        section.html(htmlSkeleton+htmlTable);
+    } else {
+        section.html(htmlTable);
+    }
+}
+
+function buildTableContent(idSection, columnTable, skeletonTable, pagination, viewCaption) {
+    var dataHtml = '';
+    dataHtml += '<table id="' + idSection + '-table" class="table">';
+    if (viewCaption) {
+        dataHtml += '    <caption id="' + idSection + '-caption">Total de registro(s): ' + pagination.totalNumber + '</caption>';
+    }
+    dataHtml += '    <thead>';
+    dataHtml += '        <tr>';
+    for (let i = 0; i < columnTable.length; i++) {
+        const column = columnTable[i];
+        var columnClass = "";
+
+        if (column.class != null && column.class != undefined) {
+            columnClass = column.class;
+        }
+
+        dataHtml +=             '<th scope="col" class="'+columnClass+'">'+column.description+'</th>';
+    }
+    dataHtml += '        </tr>';
+    dataHtml += '    </thead>';
+    dataHtml += '    <tbody></tbody>';
+    dataHtml += '</table>';
+
+    return dataHtml;
+}
+
+function PaginationTable(options) {
+    this.queryTable = [];
+    this.options = options;
+
+    this.init = function() {
+        var self = this;
+
+        if (self.options == null || self.options == undefined) {
+            alert("Ops! Tabela sem parâmetros de construção.");
+            return;
+        } else if (self.options.sectionId == null || self.options.sectionId == undefined || self.options.sectionId.trim() == "") {
+            alert("Ops! Tabela sem identificador de construção.");
+            return;
+        } else if (self.options.column == null || self.options.column == undefined || self.options.column.length <= 0) {
+            alert("Ops! Tabela sem coluna(s).");
+            return;
+        }
+
+        if (self.options.maxItem == null || self.options.maxItem == undefined || self.options.maxItem <= 0) {
+            self.options.maxItem = 15;
+        }
+
+        var url = self.options.url;
+        var sectionId = self.options.sectionId;
+        var columnTable = self.options.column;
+        var skeletonTable = self.options.skeletonProgress;
+        var itemPorPagina = self.options.maxItem;
+
+        buildTable(sectionId, columnTable, skeletonTable);
+
+        var dataContainer = $("#" + sectionId + "-pagination");
+        var inputPesquisa = $("#" + sectionId + "-pesquisa");
+        var buttonModalQuery = $("#" + sectionId + "-pesquisa-button");
+        var buttonFilter = $("#" + sectionId + "-filter-button");
+        var modalFilter = $("#" + sectionId + "-modal-filter");
+
+        var lastFilter = [];
+
+        if (modalFilter != null && modalFilter != undefined) {
+            modalFilter.on("shown.bs.modal", function () {
+                //console.log(lastFilter);
+
+                $(".table-filter").each(function() {    
+                    try {
+                        var tableIdInput = $(this).data('table');
+                        var filterTag = $(this).data('filter');
+                        var filterType = $(this).data('type');
+
+                        if (filterType != null && filterType != undefined && (filterType == "select-multiple" || filterType == "select")) {
+                            var filterDefault = $(this).data('default');
+                            if (filterDefault == undefined) {
+                                filterDefault = null;
+                            }
+                            
+                            $(this).val(filterDefault).trigger('change');
+                        } else {
+                            $(this).val("");
+                        }
+
+                        if (tableIdInput != null && tableIdInput != undefined && filterTag != null && filterTag != undefined) {
+                            if (sectionId == tableIdInput) {
+                                for (var keyFilter in lastFilter) {
+                                    if (keyFilter == filterTag) {
+                                        //console.log(keyFilter, lastFilter[keyFilter]);
+
+                                        if (filterType == "select-multiple" || filterType == "select") {
+                                            $(this).val(lastFilter[keyFilter]).trigger('change');
+                                        } else {
+                                            $(this).val(lastFilter[keyFilter]);   
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+            });
+        }
+
+        try {
+            dataContainer.pagination({
+                alias: {
+                    pageNumber: 'page',
+                    pageSize: 'maximum',
+                    queryParam: 'query'
+                },
+                inputQuery: inputPesquisa,
+                buttonModalQuery: buttonModalQuery,
+                buttonFilter: buttonFilter,
+                modalFilter: modalFilter,
+                sectionId: sectionId,
+                dataSource: url,
+                locator: 'data',
+                pageSize: itemPorPagina,
+                ajax: {
+                    beforeSend: function () {
+                        if (skeletonTable != null && skeletonTable != undefined) {
+                            $("#" + sectionId + "-skeleton").show();
+                        }
+
+                        $("#" + sectionId + "-container").hide();
+
+                        if (inputPesquisa != null && inputPesquisa != undefined) {
+                            inputPesquisa.prop('disabled', true);
+                        }
+
+                        if (buttonFilter != null && buttonFilter != undefined) {
+                            buttonFilter.prop('disabled', true);
+                        }
+
+                        if (buttonModalQuery != null && buttonModalQuery != undefined) {
+                            buttonModalQuery.prop('disabled', true);
+                        }
+                    }
+                },
+                showPrevious: false,
+                showNext: false,
+                totalNumberLocator: function (response) {
+                    var totalNumber = 0;
+
+                    if (response != null && response != undefined) {
+                        if (parseInt(response.valido) == 1) {
+                            totalNumber = response.total;
+                        }
+                    }
+
+                    return totalNumber;
+                },
+                callback: function (data, pagination, filter) {
+                    if (data == null || data == undefined) {
+                        if (skeletonTable != null && skeletonTable != undefined) {
+                            $("#" + sectionId + "-skeleton").hide();
+                        }
+                        return;
+                    } else if (data.valido != null && data.valido != undefined && parseInt(data.valido) == 0) {
+                        if (skeletonTable != null && skeletonTable != undefined) {
+                            $("#" + sectionId + "-skeleton").hide();
+                        }
+                        alert(data.mensagem);
+                        return;
+                    }
+
+                    lastFilter = filter;
+
+                    try {
+                        var dataHtml = buildTableContent(sectionId, columnTable, skeletonTable, pagination, true);
+                        dataContainer.prev().html(dataHtml);
+
+                        var htmlRow = doCallbackTableData(self, self.options.callback, data, pagination, filter);
+
+                        $("#" + sectionId + "-table tbody").html(htmlRow);
+                    } catch (error) {
+                        console.error(error);
+                        alert("Ops! Erro ao exibir dados na tabela.");
+                    }
+
+                    if (skeletonTable != null && skeletonTable != undefined) {
+                        $("#" + sectionId + "-skeleton").hide();
+                    }
+
+                    if (inputPesquisa != null && inputPesquisa != undefined) {
+                        inputPesquisa.prop('disabled', false);
+
+                        if (inputPesquisa.val().trim() != "") {
+                            inputPesquisa.focus();
+                        }
+                    }
+
+                    if (buttonFilter != null && buttonFilter != undefined) {
+                        buttonFilter.prop('disabled', false);
+                    }
+
+                    if (buttonModalQuery != null && buttonModalQuery != undefined) {
+                        buttonModalQuery.prop('disabled', false);
+                    }
+
+                    $("#" + sectionId + "-container").show();
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Ops! Erro ao construir tabela.");
+        }
+    }, 
+    doCallbackTableData = function (self, callBackAction, data, pagination, filter) {
+        try {
+            if (callBackAction != null && callBackAction != undefined) {
+                if ($.isFunction(callBackAction)) {
+                    return callBackAction(self.options.sectionId, data, pagination, filter);
+                } else {
+                    return '<tr><td colspan="'+self.options.column.length+'">Erro na tabela. Dados sem tratamento.</td></tr>';
+                }
+            } else {
+                return '<tr><td colspan="'+self.options.column.length+'">Erro ao exebir dados tabela.</td></tr>';
+            }
+        } catch (error) {
+            console.error(error);
+            return '<tr><td colspan="'+self.options.column.length+'">Erro ao construir tabela.</td></tr>';
+        }        
+    };
+
+    this.init();
+}

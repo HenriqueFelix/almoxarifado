@@ -10,6 +10,18 @@
   margin-top: 15px !important;
 }
 
+.top20 {
+  margin-top: 20px !important;
+}
+
+.top25 {
+  margin-top: 25px !important;
+}
+
+.top30 {
+  margin-top: 30px !important;
+}
+
 .vertical-center-td {
   vertical-align: middle !important;
 }
@@ -44,6 +56,23 @@
   left: -5px;
 }
 
+.modal.show,
+.modal-backdrop.show {
+  width: 100% !important;
+}
+
+.hide {
+  display: none !important;
+}
+
+.modal.show.hide {
+  display: block !important;
+}
+
+.select2-dropdown {
+  z-index: 9999999;
+}
+
 @media only screen and (max-device-width: 480px) {
   .custom-btn {
     font-size: 22px !important;
@@ -61,5 +90,14 @@
 
   .btn-label {
     top: 1px;
+  }
+
+  .modal.show,
+  .modal-backdrop.show {
+    width: 100% !important;
+  }
+
+  .modal-dialog {
+    max-width: 90% !important;
   }
 }
