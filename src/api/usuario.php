@@ -9,8 +9,9 @@
 
     require_once '../../vendor/autoload.php';
     require_once '../config/conection.php';
+    require_once '../config/funcoes.php';
 	
-    //use Vendor\Almoxarifado\model\Usuario;
+    use Vendor\Almoxarifado\model\Usuario;
     use Vendor\Almoxarifado\controller\UsuarioController;
 
     if ($_GET == null || !isset($_GET["metodo"])) {
@@ -269,7 +270,14 @@
             $page = (int)$_GET['page'];
             $max = (int)$_GET['maximum'];
 
-            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, null, $page, $max);
+            $usuarioFiltro = new Usuario();
+            $usuarioFiltro->setCodigo(0);
+            $usuarioFiltro->setNome($queryNome);
+            $usuarioFiltro->setEmail($queryEmail);
+            $usuarioFiltro->setCpf($queryCPF);
+            $usuarioFiltro->setAtivo($queryAtivo);
+
+            $usuarios = $usuarioController->consultarUsuarios($ConexaoMy, $_SESSION['usuario'], $query, $usuarioFiltro, $page, $max);
             if ($usuarios == null) {
                 $valido = 0;
                 $msg    = "Erro ao consultar usuário(s).";
@@ -277,6 +285,7 @@
                 $arrRetorno['total']    = $usuarios['amount'];
                 $arrRetorno['filtered'] = count($usuarios['object']);
                 $arrRetorno['data']     = $usuarios['object'];
+                $arrRetorno['query']    = getFilterPagination($_GET);
             }
 
             $arrRetorno['valido']   = (int)$valido;
