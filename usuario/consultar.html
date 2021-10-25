@@ -18,8 +18,9 @@
     <link rel="stylesheet" href="../assets/css/loading-skeleton.css" />
     <link rel="stylesheet" href="../assets/css/outline-input.css">
 
-    <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/popper.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/select2.min.js"></script>
     <script src="../assets/js/select2-dropdownPosition.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
@@ -103,8 +104,8 @@
                                     htmlRow += '   <td class="vertical-center-td">' + item.email + '</td>';
                                     htmlRow += '   <td class="vertical-center-td">' + item.perfil.descricao + '</td>';
                                     htmlRow += '   <td class="vertical-center-td all-right">';
-                                    htmlRow += '       <a><i class="bx bxs-pencil"></i></a>';
-                                    htmlRow += '       <a><i class="bx bxs-trash-alt"></i></a>';
+                                    htmlRow += '       <a class="btn-icon-table cusor-point color-theme" onclick="editarUsuario('+item.codigo+')"><i class="bx bxs-pencil"></i></a>';
+                                    htmlRow += '       <a class="btn-icon-table cusor-point color-danger right" onclick="removerUsuario('+item.codigo+')"><i class="bx bxs-trash-alt"></i></a>';
                                     htmlRow += '   </td>';
                                     htmlRow += '</tr>';
                                 });
@@ -120,6 +121,12 @@
                 console.error(erro);
             });
         });
+
+        function editarUsuario(codigo) {
+            if (verificarObjeto(codigo)) {
+                redirecionarPaginaAjax("load-div", "cadastrar.html", {editar: 1, usuario: codigo});
+            }
+        }
     </script>
 </head>
 
@@ -180,6 +187,17 @@
                     </span>
                     Novo usuário
                 </a>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary custom-btn-icon custom-btn-radius top5" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bx bx-slider-alt custom-bx"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button class="dropdown-item" type="button">Importar</button></li>
+                        <li><button class="dropdown-item" type="button">Exportar como Excel</button></li>
+                        <li><button class="dropdown-item" type="button">Exportar como PDF</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -238,7 +256,7 @@
                                 <div class="input-container select">
                                     <select id="filtro-ativo" class="table-filter select2 w100" required="false" data-table="tabela-usuarios" data-filter="ativo" data-type="select" data-default="1">
                                         <option value="1">Ativo</option>
-                                        <option value="0">Inativo</option>
+                                        <option value="0">Removido</option>
                                     </select>
                                     <label class="label" for="filtro-ativo">Status</label>
                                 </div>

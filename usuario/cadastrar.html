@@ -40,8 +40,10 @@
 
             promiseValidacaoUsuario.then(resposta => {
                 try {
-                    if (resposta != null && resposta != undefined && parseInt(resposta) == 1) {
+                    if (verificarObjeto(resposta) && parseInt(resposta) == 1) {
                         carregarPerfis();
+
+                        getRequestPage();
                     }
                 } catch (e) {
                     console.error(e);
@@ -51,13 +53,34 @@
             });
         });
 
+        function getRequestPage() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (verificarObjeto(urlParams)) {
+                    const paramEditar = urlParams.get('edt');
+                    const paramDetalhe = urlParams.get('det');
+                    const paramCodigo = urlParams.get('usuario');
+
+                    if ((verificarObjeto(paramEditar) || verificarObjeto(paramDetalhe)) && verificarObjeto(paramCodigo)) {
+                        if (verificarObjeto(paramDetalhe) && parseInt(paramDetalhe) == 1) {
+                            dadosUsuario(paramCodigo, false);
+                        } else if (verificarObjeto(paramEditar) && parseInt(paramEditar) == 1) {
+                            dadosUsuario(paramCodigo, true);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         function carregarPerfis() {
             //console.log("zzz");
         }
 
         function cadastrarUsuario() {
             var nome = $("#nome").val().trim();
-            var perfil = $("#perfil").val().trim();
+            var perfil = $("#perfil").val();
             var email = $("#email").val().trim();
             var senha = $("#senha").val();
 
@@ -124,6 +147,74 @@
                 }
             });
         }
+
+        function dadosUsuario(criptyCodigo, editar) {
+            $("#btn-cadastro").hide();
+
+            if (editar) {
+                $("#btn-editar").removeClass("hide");
+                $("#btn-editar").show();
+            }
+
+            var parametros = {
+                "metodo": "DadosUsuario",
+                "codigo": criptyCodigo,
+                "editar": editar,
+            };
+
+            $.ajax({
+                type: "GET",
+                url: "../src/api/usuario.php",
+                ContentType: 'application/json',
+                data: parametros,
+                beforeSend: function () {
+                    $("#load-div").show();
+                },
+                success: function (ret) {
+                    console.log(ret);
+
+                    try {
+                        if (parseInt(ret.valido) == 1) {
+                            const obj = ret.usuario;
+
+                            $("#hid-codigo").val(obj.codigo);
+                            $("#nome").val(obj.nome);
+                            $("#cpf").val(obj.cpf);
+                            $("#email").val(obj.email);
+                            $("#perfil").val(obj.perfil.codigo.toString());
+                            $("#perfil").select2("val", obj.perfil.codigo.toString());
+                            $("#senha").val("");
+
+                            initSelect2Outline("perfil", 0);
+
+                            setInterval(function () {
+                                $("#load-div").hide();
+                            }, 1000);
+                        } else {
+                            alert(ret.mensagem);
+                            window.location.replace("consultar.html");
+                        }
+                    } catch (e) {
+                        console.error(e);
+
+                        alert("Ops! Não foi possível realizar a ação.");
+                        window.location.replace("consultar.html");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    //console.log(xhr.status);
+                    console.error(xhr.responseText);
+                    console.error(thrownError);
+
+                    alert("Erro ao realizar consulta!");
+                    window.location.replace("consultar.html");
+                }
+            });
+        }
+    
+        function editarUsuario() {
+            //zzz
+        }
     </script>
 </head>
 
@@ -162,6 +253,8 @@
                     <h4 class="titulo-header">Cadastrar Usuário</h4>
                 </div>
             </div>
+
+            <input type="hidden" id="hid-codigo" />
 
             <div class="row top15">
                 <div class="col-md-7">
@@ -209,12 +302,19 @@
 
             <div class="row top25">
                 <div class="col-md-12" style="text-align:right;">
-                    <a class="btn" href="consultar.html">Cancelar</a>
-                    <button type="button" class="btn btn-primary custom-btn padding-btn" onclick="cadastrarUsuario();">
+                    <a class="btn" href="consultar.html">Voltar</a>
+                    <button id="btn-cadastro" type="button" class="btn btn-primary custom-btn padding-btn" onclick="cadastrarUsuario();">
                         <span class="btn-label">
                             <i class="bx bx-plus custom-bx"></i>
                         </span>
                         Cadastrar usuário
+                    </button>
+
+                    <button id="btn-editar" type="button" class="btn btn-primary custom-btn padding-btn hide" onclick="editarUsuario();">
+                        <span class="btn-label">
+                            <i class="bx bxs-pencil custom-bx"></i>
+                        </span>
+                        Editar usuário
                     </button>
                 </div>
             </div>

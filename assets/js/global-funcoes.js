@@ -265,10 +265,102 @@ function verificarSessao(tela, progressId) {
     });
 }
 
+function redirecionarPagina(URL, Parametros) {
+	var form = document.createElement('form');
+	form.setAttribute('method',"post");
+    form.setAttribute('action',URL);
+	form.acceptCharset="UTF-8";
+	
+	if(typeof Parametros != "undefined") {
+		var ParametrosQueb = Parametros.split('&');
+		for(var x = 0; x < ParametrosQueb.length; x++) {
+			var input = document.createElement('input');
+			var Param = ParametrosQueb[x].split('=');
+
+			input.setAttribute('type','hidden');
+			input.setAttribute('name',Param[0]);
+			input.setAttribute('value',Param[1]);
+			
+			form.appendChild(input);
+		}
+	}
+	
+	try {
+		document.getElementById('formTempSubmit').appendChild(form);
+	} catch(e) {
+        console.error(e);
+        
+        alert("Erro ao redirecionar página!")
+        return false;
+	}
+	
+	form.submit();
+	
+	try {
+		document.getElementById('formTempSubmit').removeChild(form);
+	} catch(e) {
+        console.error(e);
+	}
+}
+
 function verificarObjeto(variavel) {
     if (variavel != null && variavel != undefined) {
         return true;
     }
 
     return false;
+}
+
+function redirecionarPaginaAjax(progressId, url, param){
+    var parametros = {
+        "metodo": "RedirecionarPagina", 
+        "url" : url,
+        "param" : param,
+    };
+
+    var urlRequest = "../src/api/web_pages.php";
+
+    $.ajax({
+        url: urlRequest,
+        type: "GET",
+        ContentType: 'application/json',
+        data: parametros,
+        beforeSend: function () {
+            if (verificarObjeto(progressId)) {
+                $("#"+progressId).show();
+            }
+        },
+        success: function (ret) {
+            console.log(ret);
+
+            if (verificarObjeto(progressId)) {
+                $("#"+progressId).hide();
+            }
+
+            try {
+                if (parseInt(ret.valido) != 1) {
+                    alert(ret.mensagem);
+                } else {
+                    window.location.replace(ret.url);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Ops! Não foi possível abrir a página.");
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            //console.log(xhr.status);
+            console.error(xhr.responseText);
+            console.error(thrownError);
+
+            if (verificarObjeto(progressId)) {
+                $("#"+progressId).hide();
+            }
+            alert("Ops! Erro ao abrir página.");
+        }
+    });
+}
+
+function setTokenGetUrl(data) {
+
 }

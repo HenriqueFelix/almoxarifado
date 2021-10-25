@@ -7,9 +7,9 @@ namespace Composer\Autoload;
 class ComposerStaticInit2182657c1eb045aae51725909d89f940
 {
     public static $files = array (
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -22,6 +22,10 @@ class ComposerStaticInit2182657c1eb045aae51725909d89f940
             'Symfony\\Polyfill\\Php80\\' => 23,
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Component\\Serializer\\' => 29,
+        ),
+        'D' => 
+        array (
+            'Defuse\\Crypto\\' => 14,
         ),
     );
 
@@ -41,6 +45,10 @@ class ComposerStaticInit2182657c1eb045aae51725909d89f940
         'Symfony\\Component\\Serializer\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/serializer',
+        ),
+        'Defuse\\Crypto\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/defuse/php-encryption/src',
         ),
     );
 

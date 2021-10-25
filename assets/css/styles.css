@@ -48,8 +48,17 @@
   border-radius: 360px !important;
 }
 
+.custom-btn-icon {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.custom-btn-icon .bx {
+  margin-top: 3px;
+  margin-left: -3px;
+}
+
 .btn-labeled {
-  padding-top: 7px;
   padding-bottom: 0;
   padding-left: 25px;
   padding-right: 20px;
@@ -93,23 +102,45 @@
   font-size: 12px;
 }
 
+.cusor-point {
+  cursor: pointer;
+  outline: none;
+}
+
 @media only screen and (max-device-width: 480px) {
+  button,
+  a,
+  table,
+  input,
+  textarea,
   .custom-btn {
-    font-size: 22px !important;
+    font-size: 24px !important;
+  }
+
+  .custom-btn {
     height: 70px !important;
   }
 
   .custom-btn-radius {
     height: 60px !important;
-    font-size: 22px !important;
+  }
+
+  .custom-btn-icon {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .custom-btn-icon .bx {
+    margin-top: 8px;
+    margin-left: 0px;
   }
 
   .btn-labeled {
-    padding-top: 12px;
+    padding-top: 10px;
   }
 
   .btn-label {
-    top: 1px;
+    top: 5px;
   }
 
   .modal.show,
@@ -119,5 +150,9 @@
 
   .modal-dialog {
     max-width: 90% !important;
+  }
+
+  .bx.custom-bx {
+    font-size: 28px;
   }
 }
