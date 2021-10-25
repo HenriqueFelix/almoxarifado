@@ -59,7 +59,7 @@
 .paginationjs .paginationjs-pages li.active>a {
 	height: 30px;
 	line-height: 30px;
-	background: #0d6efd;
+	background: var(--first-color);
 	color: #fff
 }
 

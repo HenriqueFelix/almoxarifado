@@ -1,0 +1,4 @@
+composer require symfony/serializer
+
+composer require defuse/php-encryption
+

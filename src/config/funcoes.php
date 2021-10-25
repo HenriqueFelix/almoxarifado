@@ -1,15 +1,6 @@
 <?php
 
-/*
-Autor: Henrique Felix
-Data: 24/10/2021
-Objetivo: Verificar se existe o texto na string
-*/
-function str_contains($haystack, $needle) {
-    return $needle !== '' && mb_strpos($haystack, $needle) !== false;
-}
-
-
+use Defuse\Crypto\Key;
 
 /*
 Autor: Henrique Felix
@@ -23,7 +14,6 @@ function checkValue($str) {
 
     return true;
 }
-
 
 
 /*
@@ -54,6 +44,25 @@ function getFilterPagination($getRequest) {
 }
 
 
+/*
+Autor: Henrique Felix
+Data: 25/10/2021
+Objetivo: Chave de criptografia
+*/
+function encryptionKey() {
+    $keyAscii = trim(file_get_contents("../config/secret-key.txt"));
+    return $keyAscii;
+}
+
+
+/*
+Autor: Henrique Felix
+Data: 25/10/2021
+Objetivo: Pegar a chave da criptografia
+*/
+function loadEncryptionKeyFromConfig() {
+    return Key::loadFromAsciiSafeString(encryptionKey());
+}
 
 
 ?>

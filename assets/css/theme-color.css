@@ -1,0 +1,61 @@
+/* BLUE */
+/*
+:root {
+    --first-color-light-20percent: #4a8df8;
+    --first-color: #0d6efd;
+    --first-color-dark-40percent: #0252ca;
+    --first-color-dark-30percent: #023e97;
+    --first-color-accent: #0d6efd;
+    --first-color-light: #afa5d9;
+    --white-color: #fff;
+    --navbar-header-color: #f7f6fb;
+    --danger-color: #e72121;
+}
+*/
+
+/* INDIGO */
+:root {
+    --first-color-light-20percent: #6666cc;
+    --first-color: #333399;
+    --first-color-dark-40percent: #262673;
+    --first-color-dark-30percent: #19194d;
+    --first-color-accent: #333399;
+    --first-color-light: #afa5d9;
+    --white-color: #fff;
+    --navbar-header-color: #f7f6fb;
+    --danger-color: #e72121;
+}
+
+/***********************/
+/***********************/
+/**** DEFAULT CLASS ****/
+/***********************/
+/***********************/
+
+.color-theme {
+    color: var(--first-color) !important;
+}
+
+.color-danger {
+    color: var(--danger-color) !important;
+}
+
+.btn-primary,
+.btn-primary.disabled,
+.btn-primary:disabled {
+    background-color: var(--first-color);
+    border-color: var(--first-color);
+}
+
+.btn-primary:hover,
+.btn-primary.active,
+.btn-primary:active {
+    background-color: var(--first-color-dark-40percent);
+    border-color: var(--first-color-dark-40percent);
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+    background-color: var(--first-color-dark-30percent);
+    border-color: var(--first-color-dark-30percent);
+}

@@ -2,9 +2,10 @@
 
 namespace Vendor\Almoxarifado\model;
 
+use JsonSerializable;
 use Vendor\Almoxarifado\model\Perfil;
 
-class Usuario {
+class Usuario implements JsonSerializable {
     private $codigo;
     private $nome;
     private $email;
@@ -76,5 +77,17 @@ class Usuario {
     
     function getFoto() {
         return $this->foto;
+    }
+
+    public function jsonSerialize(){
+        return [
+            'codigo'   => $this->getCodigo(),
+            'nome' => $this->getNome(),
+            'email' => $this->getEmail(),
+            'senha' => $this->getSenha(),
+            'ativo' => $this->getAtivo(),
+            'perfil' => $this->getPerfil(),
+            'foto' => $this->getFoto(),
+        ];
     }
 }

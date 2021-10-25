@@ -10,8 +10,25 @@
     margin-top: 10px;
 }
 
+.data-container i.bx {
+    font-size: 18px !important;
+}
+
+.data-container .btn-icon-table {
+    color: inherit;
+}
+
+.data-container .btn-icon-table.right {
+    margin-left: 15px !important;
+}
+
+.data-container .btn-icon-table.left {
+    margin-right: 15px !important;
+}
+
+
 @media only screen and (max-device-width: 480px) {
-    table {
-        font-size: 22px;
+    .data-container i.bx {
+        font-size: 28px !important;
     }
 }
