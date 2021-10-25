@@ -23,14 +23,14 @@
 .progress-area .line {
     position: absolute;
     opacity: 0.4;
-    background: #4a8df8;
+    background: var(--first-color-light-20percent);
     width: 150%;
     height: 5px;
 }
 
 .progress-area .subline {
     position: absolute;
-    background: #4a8df8;
+    background: var(--first-color-light-20percent);
     height: 5px;
 }
 

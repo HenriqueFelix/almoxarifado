@@ -1352,11 +1352,10 @@ function PaginationTable(options) {
         var modalFilter = $("#" + sectionId + "-modal-filter");
 
         var lastFilter = [];
+        var filtroAplicado = false;
 
         if (modalFilter != null && modalFilter != undefined) {
             modalFilter.on("shown.bs.modal", function () {
-                //console.log(lastFilter);
-
                 $(".table-filter").each(function() {    
                     try {
                         var tableIdInput = $(this).data('table');
@@ -1381,8 +1380,24 @@ function PaginationTable(options) {
                                         //console.log(keyFilter, lastFilter[keyFilter]);
 
                                         if (filterType == "select-multiple" || filterType == "select") {
+                                            try {
+                                                if (lastFilter[keyFilter] != null && lastFilter[keyFilter] != undefined) {
+                                                    if (filterType == "select" && lastFilter[keyFilter] != "") {
+                                                        filtroAplicado = true;
+                                                    } else if (filterType == "select-multiple" && lastFilter[keyFilter].length > 0) {
+                                                        filtroAplicado = true;
+                                                    }
+                                                }
+                                            } catch (error) {
+                                                console.error(error);
+                                            }
+
                                             $(this).val(lastFilter[keyFilter]).trigger('change');
                                         } else {
+                                            if (lastFilter[keyFilter] != null && lastFilter[keyFilter] != undefined && lastFilter[keyFilter].trim() != "") {
+                                                filtroAplicado = true;
+                                            }
+
                                             $(this).val(lastFilter[keyFilter]);   
                                         }
                                     }
@@ -1491,6 +1506,14 @@ function PaginationTable(options) {
 
                     if (buttonModalQuery != null && buttonModalQuery != undefined) {
                         buttonModalQuery.prop('disabled', false);
+
+                        if (lastFilter != null && lastFilter != undefined && filtroAplicado) {
+                            $("#" + sectionId + "-pesquisa-button span.rounded-circle").removeClass("hide");
+                            $("#" + sectionId + "-pesquisa-button span.rounded-circle").show();
+                        } else {
+                            $("#" + sectionId + "-pesquisa-button span.rounded-circle").addClass("hide");
+                            $("#" + sectionId + "-pesquisa-button span.rounded-circle").hide();
+                        }
                     }
 
                     $("#" + sectionId + "-container").show();

@@ -2,7 +2,9 @@
 
 namespace Vendor\Almoxarifado\model;
 
-class Perfil {
+use JsonSerializable;
+
+class Perfil implements JsonSerializable {
     private $codigo;
     private $descricao;
     private $ativo = 1;
@@ -38,5 +40,14 @@ class Perfil {
     
     function getTelas() {
         return $this->telas;
+    }
+
+    public function jsonSerialize(){
+        return [
+            'codigo'   => $this->getCodigo(),
+            'descricao' => $this->getDescricao(),
+            'telas' => $this->getTelas(),
+            'ativo' => $this->getAtivo()
+        ];
     }
 }

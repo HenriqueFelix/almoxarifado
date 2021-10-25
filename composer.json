@@ -11,5 +11,7 @@
             "email": "henrique.gomes.felix@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "symfony/serializer": "^5.3"
+    }
 }
