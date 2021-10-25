@@ -58,7 +58,7 @@
 
 .input-container input:valid,
 .input-container input:focus {
-    border-bottom: 2px solid #1473e6;
+    border-bottom: 2px solid var(--first-color-accent);
 }
 
 .input-container.select .label {
@@ -69,7 +69,7 @@
 }
 
 .input-container.select .label-focus {
-    color: #1473e6;
+    color: var(--first-color-accent);
 }
 
 .input-container.select .select2-selection__choice__display {
@@ -77,7 +77,7 @@
 }
 
 .select2-container--default .select2-selection.label-focus {
-    border-bottom: 2px solid #1473e6;
+    border-bottom: 2px solid var(--first-color-accent);
 }
 
 .input-container li.select2-selection__choice {
@@ -98,7 +98,7 @@
 
 .input-container input:valid + label,
 .input-container input:focus + label {
-    color: #1473e6;
+    color: var(--first-color-accent);
     font-size: 0.8rem;
     top: -8px;
     left: 15px;
@@ -125,7 +125,7 @@
 
 .select2-results {
     background: #f2f2f2;
-    border-top: 2px solid #1473e6;
+    border-top: 2px solid var(--first-color-accent);
 }
 
 @media only screen and (max-device-width: 480px) {

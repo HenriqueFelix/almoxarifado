@@ -38,6 +38,11 @@
   height: 50px !important;
 }
 
+.custom-btn.padding-btn {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
 .custom-btn-radius {
   height: 40px !important;
   border-radius: 360px !important;
@@ -52,8 +57,12 @@
 
 .btn-label {
   position: relative;
-  top: 2px;
+  top: 3px;
   left: -5px;
+}
+
+.bx.custom-bx {
+  font-size: 20px;
 }
 
 .modal.show,
@@ -71,6 +80,17 @@
 
 .select2-dropdown {
   z-index: 9999999;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 7px 10px;
+  border-radius: 50%;
+  background: var(--first-color-dark-30percent);
+  color: white;
+  font-size: 12px;
 }
 
 @media only screen and (max-device-width: 480px) {

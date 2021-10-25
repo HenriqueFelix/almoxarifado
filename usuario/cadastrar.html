@@ -6,18 +6,30 @@
     <title>Almoxarifado</title>
 
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/theme-color.css" />
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
+    <link rel="stylesheet" href="../assets/css/select2.min.css" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <link rel="stylesheet" href="../assets/css/loading.css" />
+    <link rel="stylesheet" href="../assets/css/outline-input.css">
 
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.js"></script>
+    <script src="../assets/js/select2.min.js"></script>
+    <script src="../assets/js/select2-dropdownPosition.js"></script>
     <script src="../assets/js/global-funcoes.js"></script>
     <script src="../assets/js/menu-script.js"></script>
+    <script src="../assets/js/outline-input.js"></script>
 
     <script type="text/javascript">
         $(function () {
+            $(".select2").select2({
+                dropdownPosition: 'below'
+            });
+
+            initSelect2Outline("perfil", 0);
+
             var promiseValidacaoUsuario = new Promise((resolve, reject) => {
                 try {
                     validarPerfil("usuario/cadastrar.html", "load-div", "menu-div", resolve);
@@ -40,12 +52,12 @@
         });
 
         function carregarPerfis() {
-            console.log("ZZZZZZZZZZ");
+            //console.log("zzz");
         }
 
         function cadastrarUsuario() {
             var nome = $("#nome").val().trim();
-            var funcao = $("#funcao").val().trim();
+            var perfil = $("#perfil").val().trim();
             var email = $("#email").val().trim();
             var senha = $("#senha").val();
 
@@ -53,31 +65,33 @@
                 alert("Informe o nome!");
                 $("#nome").focus();
                 return false;
-            } else if (funcao == "") {
-                alert("Informe a função!");
-                $("#funcao").focus();
-                return false;
             } else if (email == "") {
                 alert("Informe o e-mail!");
                 $("#funcao").focus();
                 return false;
             } else if (senha == "") {
                 alert("Informe a senha!");
-                $("#funcao").focus();
+                $("#senha").focus();
+                return false;
+            } else if (perfil == "") {
+                alert("Informe o perfil!");
+                $("#perfil").focus();
                 return false;
             }
 
             var parametros = {
-                "metodo": "CadastroUsuario",
+                "metodo": "CadastrarUsuario",
                 "nome": nome,
-                "funcao": funcao,
                 "email": email,
                 "senha": senha,
+                "perfil": perfil,
+                "cpf": cpf,
             };
 
             $.ajax({
                 type: "POST",
                 url: "../src/api/usuario.php",
+                ContentType: 'application/json',
                 data: parametros,
                 beforeSend: function () {
                     $("#load-div").show();
@@ -85,27 +99,28 @@
                 success: function (ret) {
                     console.log(ret);
 
+                    $("#load-div").hide();
+
                     try {
                         if (parseInt(ret.valido) == 1) {
                             alert(ret.mensagem);
-                            window.location.replace("consultar.html");
+                            //window.location.replace("consultar.html");
                         } else {
-                            $("#load-div").hide();
                             alert(ret.mensagem);
                         }
                     } catch (e) {
-                        $("#load-div").hide();
-                        alert("Ops! Não foi possível realizar a ação.");
                         console.error(e);
+
+                        alert("Ops! Não foi possível realizar a ação.");
                     }
                 },
-                error: function (request, status, errorThrown) {
-                    $("#load-div").hide();
-                    alert("Erro ao realizar cadastro!");
-
+                error: function (xhr, ajaxOptions, thrownError) {
                     //console.log(xhr.status);
                     console.error(xhr.responseText);
                     console.error(thrownError);
+
+                    $("#load-div").hide();
+                    alert("Erro ao realizar cadastro!");
                 }
             });
         }
@@ -147,35 +162,60 @@
                     <h4 class="titulo-header">Cadastrar Usuário</h4>
                 </div>
             </div>
+
             <div class="row top15">
-                <div class="col-md-6">
-                    <label>Nome</label>
-                    <input class="form-control" placeholder="Informe o nome" id="nome">
+                <div class="col-md-7">
+                    <div class="input-container">
+                        <input id="nome" type="text" class="input" pattern=".+" required />
+                        <label class="label" for="nome">Nome *</label>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label>Função</label>
-                    <select class="form-control select" placeholder="Informe o nome" id="funcao">
-                        <option value="">Selecione</option>
-                        <option value="1">Administrador</option>
-                        <option value="2">Solicitante</option>
-                        <option value="3">Aprovador</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row" style="margin-top: 20px;">
-                <div class="col-md-6">
-                    <label>E-mail</label>
-                    <input class="form-control" placeholder="Informe o e-mail" id="email">
-                </div>
-                <div class="col-md-6">
-                    <label>Senha</label>
-                    <input class="form-control" placeholder="Informe a senha" id="senha">
+
+                <div class="col-md-5">
+                    <div class="input-container">
+                        <input id="cpf" type="text" class="input" pattern=".+" required />
+                        <label class="label" for="cpf">CPF</label>
+                    </div>
                 </div>
             </div>
-            <div class="row" style="margin-top: 20px;">
+
+            <div class="row top25">
+                <div class="col-md-5">
+                    <div class="input-container">
+                        <input id="email" type="text" class="input" pattern=".+" required />
+                        <label class="label" for="email">E-mail *</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="input-container">
+                        <input id="senha" type="password" class="input" pattern=".+" required />
+                        <label class="label" for="senha">Senha *</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="input-container select">
+                        <select id="perfil" class="select2 w100" required>
+                            <option></option>
+                            <option value="1">Administrador</option>
+                            <option value="2">Solicitador</option>
+                            <option value="3">Aprovador</option>
+                        </select>
+                        <label class="label" for="perfil">Perfil *</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row top25">
                 <div class="col-md-12" style="text-align:right;">
                     <a class="btn" href="consultar.html">Cancelar</a>
-                    <button type="button" class="btn btn-primary" onclick="cadastrarUsuario();">Cadastrar usuário</button>
+                    <button type="button" class="btn btn-primary custom-btn padding-btn" onclick="cadastrarUsuario();">
+                        <span class="btn-label">
+                            <i class="bx bx-plus custom-bx"></i>
+                        </span>
+                        Cadastrar usuário
+                    </button>
                 </div>
             </div>
         </div>

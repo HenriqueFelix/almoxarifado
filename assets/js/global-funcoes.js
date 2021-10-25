@@ -1,6 +1,6 @@
 //var GL_URLPAGE = "http://localhost/";
-var GL_URLPAGE = "http://192.168.0.105/";
-var GL_NOME_SISTEMA = "Ctrl+A";
+var GL_URLPAGE = "http://192.168.0.106/";
+var GL_NOME_SISTEMA = "Almoxarifado";
 var GL_VERSAO_SISTEMA = "1.0.0";
 var GL_USUARIO_LOGADO;
 
@@ -114,14 +114,14 @@ function loadMenu(progressId, menuId, telaAtual, redirecionarErro, resolvePromis
                         var url = "";
                         var urlAtiva = "";
 
-                        if (menu.sub_menu == 0 && verificarObjeto(menu.telas[0])) {
-                            url = menu.telas[0].diretorio;
+                        if (menu.sub_menu == 0 && verificarObjeto(menu.paginas[0])) {
+                            url = menu.paginas[0].diretorio;
 
                             if (telaAtual == url) {
                                 urlAtiva = "active";
                             } else {
-                                for (let m = 0; m < menu.telas.length; m++) {
-                                    const telasMenu = menu.telas[m];
+                                for (let m = 0; m < menu.paginas.length; m++) {
+                                    const telasMenu = menu.paginas[m];
                                     if (telaAtual == telasMenu.diretorio) {
                                         urlAtiva = "active";
                                     }

@@ -6,6 +6,7 @@
     <title>Almoxarifado</title>
 
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../assets/css/theme-color.css" />
     <link rel="stylesheet" href="../assets/css/menu.css" />
     <link rel="stylesheet" href="../assets/css/boxicons.min.css" />
     <link rel="stylesheet" href="../assets/css/select2.min.css" />
@@ -34,8 +35,6 @@
 
             initSelect2Outline("filtro-perfil", 1);
             initSelect2Outline("filtro-ativo", 0);
-
-            //$('#tabela-usuarios-modal-filter').modal({backdrop: 'static', keyboard: false})
 
             $("#tabela-usuarios-modal-filter").on("shown.bs.modal", function () {
                 $("#filtro-perfil").select2({
@@ -94,7 +93,7 @@
                                 row: 15
                             },
                             url: "../src/api/usuario.php?metodo=ConsultarUsuarios",
-                            maxItem: 2,
+                            maxItem: 15,
                             callback: function (tableId, data, pagination, filter){
                                 var htmlRow = '';
 
@@ -165,7 +164,10 @@
                     <input id="tabela-usuarios-pesquisa" type="text" class="form-control input-search" placeholder="Digite o que você quer encontrar." autocomplete="off" disabled />
                     <div class="input-group-append">
                         <button type="button" id="tabela-usuarios-pesquisa-button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tabela-usuarios-modal-filter">
-                            <i class="bx bx-search"></i>
+                            <i class="bx bx-filter-alt custom-bx top5"></i>
+                            <span class="hide position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                                <span class="visually-hidden">New alerts</span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -174,7 +176,7 @@
             <div class="col-xs-6 col-sm-6 col-lg-8 all-right">
                 <a href="cadastrar.html" class="btn btn-labeled btn-primary custom-btn-radius top5">
                     <span class="btn-label">
-                        <i class="bx bx-plus"></i>
+                        <i class="bx bx-plus custom-bx"></i>
                     </span>
                     Novo usuário
                 </a>
@@ -222,12 +224,9 @@
                             <div class="col-md-5">
                                 <div class="input-container select">
                                     <select id="filtro-perfil" class="table-filter select2 multiple w100" multiple="multiple" required="false" data-table="tabela-usuarios" data-filter="perfil" data-type="select-multiple" data-default="">
-                                        <option value="AL">Alabama</option>
-                                        <option value="WY">Wyoming</option>
-                                        <option value="PE">Pernambuco</option>
-                                        <option value="PB">Rio de Janeiro</option>
-                                        <option value="PB">Rio Grande do Norte</option>
-                                        <option value="PB">Curitiba</option>
+                                        <option value="1">Administrador</option>
+                                        <option value="2">Solicitador</option>
+                                        <option value="3">Aprovador</option>
                                     </select>
                                     <label class="label" for="filtro-perfil">Perfil</label>
                                 </div>
@@ -247,7 +246,12 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="tabela-usuarios-filter-button" class="btn btn-primary">Filtrar</button>
+                        <button type="button" id="tabela-usuarios-filter-button" class="btn btn-primary custom-btn padding-btn">
+                            <span class="btn-label">
+                                <i class="bx bx-search custom-bx"></i>
+                            </span>
+                            Filtrar
+                        </button>
                     </div>
                 </div>
             </div>

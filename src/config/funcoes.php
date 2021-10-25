@@ -5,10 +5,11 @@ Autor: Henrique Felix
 Data: 24/10/2021
 Objetivo: Verificar se existe o texto na string
 */
+/*
 function str_contains($haystack, $needle) {
     return $needle !== '' && mb_strpos($haystack, $needle) !== false;
 }
-
+*/
 
 
 /*

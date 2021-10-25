@@ -1,15 +1,21 @@
 <?php    
     namespace Vendor\Almoxarifado\controller;
-    
-    use Vendor\Almoxarifado\model\Usuario;
+
+use Vendor\Almoxarifado\model\Perfil;
+use Vendor\Almoxarifado\model\Usuario;
     
     class UsuarioController {
-        public function login($ConexaoMy, $login, $senha) {
-            $usuario = array();
+        public function login($ConexaoMy, $login, $senha): Usuario {
+            $usuario = new Usuario();
 
-            $SQL = "SELECT u.* 
+            $SQL = "SELECT u.*, 
+                        p.descricao AS perfil_descricao, 
+                        p.ativo AS perfil_ativo 
                     FROM usuario u 
-                    WHERE (
+                        LEFT JOIN perfil p ON p.codigo = u.perfil 
+                    WHERE u.perfil IS NOT NULL 
+                        AND u.perfil > 0 
+                        AND (
                             u.email = :login 
                             OR (
                                 u.cpf IS NOT NULL 
@@ -29,18 +35,25 @@
                 if ($stmt->rowCount() > 0) {
                     $Aux = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-                    $usuario['codigo'] = (int)$Aux['codigo'];
-                    $usuario['nome'] = trim((string)$Aux['nome']);
-                    $usuario['email'] = trim((string)$Aux['email']);
-                    $usuario['cpf'] = trim((string)$Aux['cpf']);
-                    $usuario['foto'] = "";
-                    $usuario['perfil']['codigo'] = (int)$Aux['perfil'];
-                    $usuario['perfil']['descricao'] = "zzz ".$Aux['perfil'];
-                    $usuario['perfil']['telas'] = $this->verificarPerfil($ConexaoMy, $usuario, 1);
-
-                    if (file_exists("../../upload/usuario/perfil/".$usuario['codigo'].".jpg")) {
-                        $usuario['foto'] = "../upload/usuario/perfil/".$usuario['codigo'].".jpg";
+                    if ((int)$Aux['perfil_ativo'] != 1) {
+                        throw new \Exception("Seu perfil encontra-se inativo.");
                     }
+
+                    $usuario->setCodigo((int)$Aux['codigo']);
+                    $usuario->setNome(trim((string)$Aux['nome']));
+                    $usuario->setEmail(trim((string)$Aux['email']));
+                    $usuario->setCpf(trim((string)$Aux['cpf']));
+                    $usuario->setFoto("");
+                    $usuario->setAtivo(1);
+
+                    $perfil = new Perfil();
+                    $perfil->setCodigo((int)$Aux['perfil']);
+                    $perfil->setDescricao(trim((string)$Aux['perfil_descricao']));
+                    $perfil->setAtivo(1);
+                    
+                    $usuario->setPerfil($perfil);
+
+                    $perfil->setTelas($this->verificarPerfil($ConexaoMy, $usuario));
                 } else {
                     throw new \Exception("Login ou senha inválido(s).");
                 }
@@ -51,12 +64,12 @@
             return $usuario;
 		}
 
-        public function verificarPerfil($ConexaoMy, $usuario, $retornarTela) {
+        public function verificarPerfil($ConexaoMy, ?Usuario $usuario) {
             $telas = array();
             $menu = array();
             $perfilTelas = array();
 
-            $codigoPerfil = (int)$usuario['perfil']['codigo'];
+            $codigoPerfil = $usuario->getPerfil()->getCodigo();
 
             if ($codigoPerfil <= 0) {
                 throw new \Exception("Ops! Perfil não identificado.");
@@ -121,7 +134,7 @@
                                             $menu[$t]['titulo']    = trim($Aux['titulo']);
                                             $menu[$t]['icone']     = trim($Aux['icone']);
                                             $menu[$t]['sub_menu']  = (int)$Aux['sub_menu'];
-                                            $menu[$t]['telas']     = array();
+                                            $menu[$t]['paginas']   = array();
                                         }
                                     } else {
                                         throw new \Exception("Ops! Menu de telas inexistente para seu perfil.");
@@ -133,7 +146,7 @@
                                 foreach ($menu as $keyMenu => $valueMenu) {
                                     foreach ($perfilTelas as $keyTela => $valueTela) {
                                         if ($valueMenu['codigo'] == $valueTela['menu']) {
-                                            array_push($menu[$keyMenu]['telas'], $valueTela);
+                                            array_push($menu[$keyMenu]['paginas'], $valueTela);
                                         }
                                     }
                                 }
@@ -157,7 +170,7 @@
             return $telas;
         }
 
-        public function consultarUsuarios($ConexaoMy, $usuarioLogado, $query, ?Usuario $usuarioFiltro, $pagina, $itemsPorPagina) {
+        public function consultarUsuarios($ConexaoMy, ?Usuario $usuarioLogado, $query, ?Usuario $usuarioFiltro, $pagina, $itemsPorPagina) {
             $arrRetorno = array();
 
             $filtroSQL = "";
@@ -203,8 +216,12 @@
                     $filtroSQL .= " AND u.cpf = :filtroCPF ";
                 }
 
-                if (checkValue($usuarioFiltro->getAtivo())) {
+                if ($usuarioFiltro->getAtivo() >= 0) {
                     $filtroSQL .= " AND u.ativo = :filtroAtivo ";
+                }
+
+                if ($usuarioFiltro->getPerfil() != null && $usuarioFiltro->getPerfil()->getCodigo() != null) {
+                    $filtroSQL .= " AND u.perfil IN(".implode(",", $usuarioFiltro->getPerfil()->getCodigo()).") ";
                 }
             } else {
                 $usuarioFiltro = new Usuario();
@@ -215,15 +232,17 @@
             $SQL = "SELECT u.codigo, 
                         u.nome, 
                         u.email, 
+                        u.ativo, 
                         u.perfil, 
-                        p.descricao AS perfil_descricao 
+                        p.descricao AS perfil_descricao, 
+                        p.ativo AS perfil_ativo 
                     FROM usuario u 
                         LEFT JOIN perfil p ON p.codigo = u.perfil 
                     WHERE 1 = 1 
                         ".$filtroSQL." 
                     ORDER BY u.nome ASC 
                     LIMIT ".(int)$offset.", ".(int)$itemsPorPagina."; ";
-			
+
             $stmt = $ConexaoMy->prepare($SQL);
 
             if (str_contains($SQL, ":queryNome")) {
@@ -266,11 +285,20 @@
                     for ($i=0; $i < count($resultQuery); $i++) {
                         $Aux = $resultQuery[$i];
 
-                        $usuarios[$i]['codigo']                 = (int)$Aux['codigo'];
-                        $usuarios[$i]['nome']                   = trim((string)$Aux['nome']);
-                        $usuarios[$i]['email']                  = trim((string)$Aux['email']);
-                        $usuarios[$i]['perfil']['codigo']       = (int)$Aux['perfil'];
-                        $usuarios[$i]['perfil']['descricao']    = trim((string)$Aux['perfil_descricao']);
+                        $usu = new Usuario();
+                        $usu->setCodigo((int)$Aux['codigo']);
+                        $usu->setNome(trim((string)$Aux['nome']));
+                        $usu->setEmail(trim((string)$Aux['email']));
+                        $usu->setAtivo(trim((int)$Aux['ativo']));
+                        
+                        $perfil = new Perfil();
+                        $perfil->setCodigo((int)$Aux['perfil']);
+                        $perfil->setDescricao(trim((string)$Aux['perfil_descricao']));
+                        $perfil->setAtivo((int)$Aux['perfil_ativo']);
+                        
+                        $usu->setPerfil($perfil);
+
+                        $usuarios[$i] = $usu;
                     }
 
                     //QUANTIDADE TOTAL
@@ -332,7 +360,7 @@
             return $arrRetorno;
         }
 
-        public function cadastrarUsuario($ConexaoMy, $usuarioLogado) {
+        public function cadastrarUsuario($ConexaoMy, ?Usuario $usuarioLogado) {
 
         }
     }

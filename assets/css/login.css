@@ -1,6 +1,6 @@
 .sidenav {
     height: 100%;
-    background-color: #105dbc;
+    background-color: var(--first-color-dark-40percent);
     overflow-x: hidden;
     padding-top: 20px;
     width: 55%;
