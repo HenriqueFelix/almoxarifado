@@ -13,7 +13,6 @@
 
 @media only screen and (max-device-width: 480px) {
     .input-search {
-        font-size: 22px !important;
         height: 70px !important;
     }
 

@@ -130,12 +130,12 @@
 
 @media only screen and (max-device-width: 480px) {
     .input-container label {
-        font-size: 22px;
+        font-size: 24px;
         top: 20px;
     }
 
     .input-container input {
-        font-size: 22px;
+        font-size: 24px;
         height: 70px;
     }
 
@@ -173,11 +173,11 @@
     }
 
     .input-container.select .select2-selection__rendered {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     .input-container.select .select2-container .select2-search--inline .select2-search__field {
-        font-size: 22px;
+        font-size: 24px;
         height: 28px;
     }
 }

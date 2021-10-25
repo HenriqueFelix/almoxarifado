@@ -14,6 +14,7 @@
     use Vendor\Almoxarifado\model\Usuario;
     use Vendor\Almoxarifado\controller\UsuarioController;
     use Vendor\Almoxarifado\model\Perfil;
+    use Defuse\Crypto\Crypto;
 
     $usuarioController = new UsuarioController;
 
@@ -219,8 +220,6 @@
             $arrRetorno['valido']   = (int)$valido;
             $arrRetorno['mensagem'] = $msg;
     
-            sleep(1);
-    
             echo json_encode($arrRetorno);
             die();
         }
@@ -309,14 +308,110 @@
                 die();
             }
         }
+
+        if ($_GET["metodo"] == "DadosUsuario") {
+            $arrRetorno = array();
+
+            $codigo = 0;
+
+            if (isset($_GET['codigo'])) {
+                try {
+                    $keyCrypto = loadEncryptionKeyFromConfig();
+                    $codigo = Crypto::Decrypt($_GET['codigo'], $keyCrypto);
+                } catch (\Exception $e) {
+                    $codigo = -1;
+                }
+            }
+
+            if ($codigo <= 0) {
+                $arrRetorno['valido']   = 0;
+                $arrRetorno['mensagem'] = "Usuário não identificado.";
+
+                echo json_encode($arrRetorno);
+                die();
+            }
+            
+            $ConexaoMy = DBConnectMy();
+
+            try {                
+                $valido = 1;
+                $msg = "Listagem realizada com sucesso.";
+
+                $usuarioFiltro = new Usuario();
+                $usuarioFiltro->setCodigo($codigo);
+                $usuarioFiltro->setPerfil(new Perfil());
+    
+                $usuario = $usuarioController->consultarUsuarios($ConexaoMy, unserialize($_SESSION['usuario']), "", $usuarioFiltro, 1, 1);
+                if ($usuario == null) {
+                    $valido = 0;
+                    $msg    = "Erro ao consultar usuário.";
+                } else if ($usuario['object'] == null || count($usuario['object']) <= 0) {
+                    $valido = 0;
+                    $msg    = "Usuário invalido.";
+                } else {
+                    $arrRetorno['usuario'] = $usuario['object'][0];
+                }
+    
+                $arrRetorno['valido']   = (int)$valido;
+                $arrRetorno['mensagem'] = $msg;
+
+                DBClose($ConexaoMy);
+
+                echo json_encode($arrRetorno);
+                die();
+            } catch (\Exception $e) {
+                http_response_code(200);
+    
+                DBClose($ConexaoMy);
+    
+                echo json_encode(array('valido' => 0, 'mensagem' => $e->getMessage()), JSON_UNESCAPED_UNICODE);
+                die();
+            }
+        }
+
+
     } else if ($_POST != null && isset($_POST["metodo"])) {
         if ($_POST["metodo"] == "CadastrarUsuario") {
             $ConexaoMy = DBConnectMy();
     
+            $nome = trim((string)$_POST["nome"]);
+            $email = trim((string)$_POST["email"]);
+            $cpf = trim((string)$_POST["cpf"]);
+            $senha = trim((string)$_POST["senha"]);
+            $perfilCodigo = (int)$_POST["perfil"];
+
             try {
                 $valido = 1;
                 $msg = "Cadastrado realizado com sucesso.";
     
+                if (!checkValue($nome)) {
+                    $valido = 0;
+                    $msg = "Informe o nome.";
+                } else if (!checkValue($email)) {
+                    $valido = 0;
+                    $msg = "Informe o e-mail.";
+                } else if (!checkValue($senha)) {
+                    $valido = 0;
+                    $msg = "Informe a senha.";
+                } else if ($perfil <= 0) {
+                    $valido = 0;
+                    $msg = "Informe o perfil.";
+                } else {
+                    $usuario = new Usuario();
+                    $usuario->setCodigo(0);
+                    $usuario->setNome($nome);
+                    $usuario->setEmail($email);
+                    $usuario->setSenha($senha);
+                    $usuario->setCpf($cpf);
+
+                    $perfil = new Perfil();
+                    $perfil->setCodigo($perfilCodigo);
+
+                    $usuario->setPerfil($perfil);
+
+                    //zzz
+                }
+
                 $arrRetorno = array();
                 $arrRetorno['valido']   = (int)$valido;
                 $arrRetorno['mensagem'] = $msg;

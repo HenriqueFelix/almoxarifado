@@ -9,6 +9,7 @@
     --first-color-light: #afa5d9;
     --white-color: #fff;
     --navbar-header-color: #f7f6fb;
+    --danger-color: #e72121;
 }
 */
 
@@ -22,6 +23,7 @@
     --first-color-light: #afa5d9;
     --white-color: #fff;
     --navbar-header-color: #f7f6fb;
+    --danger-color: #e72121;
 }
 
 /***********************/
@@ -29,6 +31,14 @@
 /**** DEFAULT CLASS ****/
 /***********************/
 /***********************/
+
+.color-theme {
+    color: var(--first-color) !important;
+}
+
+.color-danger {
+    color: var(--danger-color) !important;
+}
 
 .btn-primary,
 .btn-primary.disabled,
